@@ -66,8 +66,8 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
         style={{
           width: (isFullWidth || isSidebar) ? '100%' : 'auto',
           height: 'auto',
-          maxHeight: isHeader ? '60px' : isSidebar ? '360px' : '220px',
-          objectFit: (isFullWidth || isSidebar) ? 'cover' : 'contain',
+          maxHeight: isHeader ? '60px' : isFullWidth ? '240px' : 'none',
+          objectFit: isFullWidth ? 'cover' : 'contain',
           display: 'block',
           margin: '0 auto',
           borderRadius: 'var(--radius)',
