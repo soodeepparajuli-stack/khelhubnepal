@@ -523,13 +523,29 @@ ul, ol {
 
 .ad-full-width {
   width: 100%;
-  height: 90px;
-  margin: 16px 0;
+  margin: 20px 0;
+  overflow: hidden;
 }
 
-.ad-full-width .ad-placeholder {
+.ad-full-width a {
+  display: block;
   width: 100%;
-  height: 90px;
+}
+
+.ad-full-width img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.ad-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .ad-sidebar {
