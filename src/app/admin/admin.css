@@ -1,0 +1,7 @@
+/* Admin panel uses Inter font from the admin layout */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Override body font for admin */
+body {
+  font-family: 'Inter', sans-serif !important;
+}
