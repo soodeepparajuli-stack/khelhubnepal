@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import AdminShell from '@/components/admin/AdminShell';
 import { Ad, AdPosition } from '@/types';
-import { Plus, Trash2, ExternalLink, Code, ImageIcon, X, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Code, X, AlertCircle, Edit3, Save } from 'lucide-react';
 
 const AD_POSITIONS: { value: AdPosition; label: string; desc: string }[] = [
   { value: 'header', label: 'Header Top (हेडर ब्यानर)', desc: 'Top of page next to logo (468x60)' },
@@ -12,12 +12,16 @@ const AD_POSITIONS: { value: AdPosition; label: string; desc: string }[] = [
   { value: 'in-article', label: 'In-Article (समाचार भित्र)', desc: 'Inside news article body' },
 ];
 
+type ModalMode = 'add' | 'edit';
+
 export default function AdminAdsPage() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState<ModalMode>('add');
+  const [editingAd, setEditingAd] = useState<Ad | null>(null);
 
-  // New Ad form state
+  // Form state
   const [name, setName] = useState('');
   const [position, setPosition] = useState<AdPosition>('sidebar');
   const [imageUrl, setImageUrl] = useState('');
@@ -41,9 +45,44 @@ export default function AdminAdsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchAds();
-  }, []);
+  useEffect(() => { fetchAds(); }, []);
+
+  const resetForm = () => {
+    setName('');
+    setPosition('sidebar');
+    setImageUrl('');
+    setLinkUrl('');
+    setCode('');
+    setIsActive(true);
+    setError('');
+    setUploading(false);
+  };
+
+  const openAddModal = () => {
+    setModalMode('add');
+    setEditingAd(null);
+    resetForm();
+    setShowModal(true);
+  };
+
+  const openEditModal = (ad: Ad) => {
+    setModalMode('edit');
+    setEditingAd(ad);
+    setName(ad.name);
+    setPosition(ad.position);
+    setImageUrl(ad.image_url || '');
+    setLinkUrl(ad.link_url || '');
+    setCode(ad.code || '');
+    setIsActive(ad.is_active);
+    setError('');
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingAd(null);
+    resetForm();
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,15 +95,12 @@ export default function AdminAdsPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const json = await res.json();
       if (res.ok && json.url) {
         setImageUrl(json.url);
       } else {
-        setError(json.error || 'Upload failed. You can paste an image URL directly.');
+        setError(json.error || 'Upload failed. Please paste an image URL directly.');
       }
     } catch {
       setError('Upload error.');
@@ -73,38 +109,37 @@ export default function AdminAdsPage() {
     }
   };
 
-  const handleCreateAd = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
 
+    const payload = {
+      ...(modalMode === 'edit' && editingAd ? { id: editingAd.id } : {}),
+      name: name.trim(),
+      position,
+      image_url: imageUrl.trim() || null,
+      link_url: linkUrl.trim() || null,
+      code: code.trim() || null,
+      is_active: isActive,
+    };
+
     try {
       const res = await fetch('/api/ads', {
-        method: 'POST',
+        method: modalMode === 'edit' ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          position,
-          image_url: imageUrl.trim() || null,
-          link_url: linkUrl.trim() || null,
-          code: code.trim() || null,
-          is_active: isActive,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        setName('');
-        setImageUrl('');
-        setLinkUrl('');
-        setCode('');
-        setShowAddModal(false);
+        closeModal();
         fetchAds();
       } else {
         const json = await res.json();
-        setError(json.error || 'Failed to create ad.');
+        setError(json.error || 'Failed to save ad.');
       }
     } catch {
-      setError('Network error creating ad.');
+      setError('Network error. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -132,7 +167,7 @@ export default function AdminAdsPage() {
           Manage sponsor banners, Google AdSense, or custom promotions across KhelHub Nepal
         </p>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={openAddModal}
           className="btn btn-primary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
@@ -141,23 +176,28 @@ export default function AdminAdsPage() {
         </button>
       </div>
 
-      {/* Add Ad Modal / Form */}
-      {showAddModal && (
+      {/* Add / Edit Modal */}
+      {showModal && (
         <div style={{
           background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(227,30,36,0.3)',
+          border: `1px solid ${modalMode === 'edit' ? 'rgba(52,152,219,0.5)' : 'rgba(227,30,36,0.3)'}`,
           borderRadius: '12px',
           padding: '24px',
           marginBottom: '30px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 700 }}>नयाँ विज्ञापन थप्ने फारम (New Advertisement)</h3>
+            <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {modalMode === 'edit'
+                ? <><Edit3 size={16} style={{ color: '#3498db' }} /> विज्ञापन सम्पादन: <span style={{ color: '#3498db' }}>{editingAd?.name}</span></>
+                : <><Plus size={16} style={{ color: '#e31e24' }} /> नयाँ विज्ञापन थप्ने</>
+              }
+            </h3>
             <button
-              onClick={() => setShowAddModal(false)}
+              onClick={closeModal}
               className="btn btn-ghost btn-sm"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
             >
-              <X size={14} /> बन्द गर्नुस्
+              <X size={14} /> बन्द
             </button>
           </div>
 
@@ -168,7 +208,7 @@ export default function AdminAdsPage() {
             </div>
           )}
 
-          <form onSubmit={handleCreateAd}>
+          <form onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">विज्ञापनको नाम (Ad Name) *</label>
@@ -179,6 +219,7 @@ export default function AdminAdsPage() {
                   onChange={e => setName(e.target.value)}
                   placeholder="उदा: Ncell Sports Offer"
                   required
+                  autoFocus
                 />
               </div>
 
@@ -190,7 +231,7 @@ export default function AdminAdsPage() {
                   onChange={e => setPosition(e.target.value as AdPosition)}
                 >
                   {AD_POSITIONS.map(p => (
-                    <option key={p.value} value={p.value}>{p.label} - {p.desc}</option>
+                    <option key={p.value} value={p.value}>{p.label} — {p.desc}</option>
                   ))}
                 </select>
               </div>
@@ -225,8 +266,18 @@ export default function AdminAdsPage() {
                   className="form-input"
                   value={imageUrl}
                   onChange={e => setImageUrl(e.target.value)}
-                  placeholder="वा इमेज लिंक पेस्ट गर्नुस्"
+                  placeholder="वा इमेज URL यहाँ पेस्ट गर्नुस्"
                 />
+                {imageUrl && (
+                  <div style={{ marginTop: '8px' }}>
+                    <img
+                      src={imageUrl}
+                      alt="Preview"
+                      style={{ maxHeight: '60px', maxWidth: '180px', objectFit: 'contain', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', padding: '4px' }}
+                      onError={e => (e.currentTarget.style.display = 'none')}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -243,29 +294,33 @@ export default function AdminAdsPage() {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <label className="form-check">
+              <label className="form-check" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={isActive}
                   onChange={e => setIsActive(e.target.checked)}
+                  style={{ width: '16px', height: '16px' }}
                 />
-                <span className="form-check-label">सक्रिय राख्ने (Active immediately)</span>
+                <span className="form-check-label">सक्रिय राख्ने (Active)</span>
               </label>
 
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() => setShowAddModal(false)}
-                >
+                <button type="button" className="btn btn-ghost" onClick={closeModal}>
                   रद्द गर्नुस्
                 </button>
                 <button
                   type="submit"
                   className="btn btn-primary"
                   disabled={submitting}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  {submitting ? 'थपिँदैछ...' : 'सुरक्षित गर्नुस् (Save Ad)'}
+                  <Save size={14} />
+                  <span>
+                    {submitting
+                      ? (modalMode === 'edit' ? 'अद्यावधिक हुँदैछ...' : 'थपिँदैछ...')
+                      : (modalMode === 'edit' ? 'अद्यावधिक गर्नुस् (Update)' : 'सुरक्षित गर्नुस् (Save)')
+                    }
+                  </span>
                 </button>
               </div>
             </div>
@@ -300,25 +355,32 @@ export default function AdminAdsPage() {
               <tr key={ad.id}>
                 <td>
                   {ad.image_url ? (
-                    <img src={ad.image_url} alt={ad.name} style={{ width: 80, height: 40, objectFit: 'contain', background: '#0a0e2e', padding: 2, borderRadius: 3 }} />
+                    <img
+                      src={ad.image_url}
+                      alt={ad.name}
+                      style={{ width: 80, height: 40, objectFit: 'contain', background: '#0a0e2e', padding: 2, borderRadius: 3 }}
+                    />
                   ) : ad.code ? (
                     <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '3px 6px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                       <Code size={12} /> Code
                     </span>
                   ) : (
-                    <span style={{ opacity: 0.4 }}>—</span>
+                    <span style={{ opacity: 0.4, fontSize: '12px' }}>—</span>
                   )}
                 </td>
                 <td style={{ fontWeight: 600, color: 'white' }}>{ad.name}</td>
                 <td>
-                  <span className="badge badge-navy">
-                    {ad.position}
-                  </span>
+                  <span className="badge badge-navy">{ad.position}</span>
                 </td>
                 <td style={{ maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px' }}>
                   {ad.link_url ? (
-                    <a href={ad.link_url} target="_blank" rel="noopener noreferrer" style={{ color: '#3498db', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                      <span>{ad.link_url}</span>
+                    <a
+                      href={ad.link_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#3498db', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+                    >
+                      <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', whiteSpace: 'nowrap' }}>{ad.link_url}</span>
                       <ExternalLink size={10} />
                     </a>
                   ) : (
@@ -330,7 +392,7 @@ export default function AdminAdsPage() {
                     onClick={() => toggleAdActive(ad)}
                     className={`badge ${ad.is_active ? 'badge-green' : 'badge-red'}`}
                     style={{ cursor: 'pointer', border: 'none', fontFamily: 'inherit' }}
-                    title="Click to toggle status"
+                    title="Click to toggle"
                   >
                     {ad.is_active ? 'Active' : 'Inactive'}
                   </button>
@@ -339,13 +401,23 @@ export default function AdminAdsPage() {
                   {new Date(ad.created_at).toLocaleDateString()}
                 </td>
                 <td>
-                  <button
-                    onClick={() => deleteAd(ad.id)}
-                    className="btn btn-danger btn-sm"
-                    title="Delete ad"
-                  >
-                    <Trash2 size={13} />
-                  </button>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      onClick={() => openEditModal(ad)}
+                      className="btn btn-ghost btn-sm"
+                      title="Edit ad"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Edit3 size={13} /> Edit
+                    </button>
+                    <button
+                      onClick={() => deleteAd(ad.id)}
+                      className="btn btn-danger btn-sm"
+                      title="Delete ad"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
