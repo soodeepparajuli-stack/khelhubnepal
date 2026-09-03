@@ -56,7 +56,7 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
       rel="noopener noreferrer sponsored"
       style={{
         display: 'block',
-        width: isFullWidth ? '100%' : 'auto',
+        width: (isFullWidth || isSidebar) ? '100%' : 'auto',
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -64,13 +64,13 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
         src={ad.image_url}
         alt={`Advertisement - ${ad.name}`}
         style={{
-          width: isFullWidth ? '100%' : isSidebar ? '100%' : 'auto',
-          height: isFullWidth ? 'auto' : 'auto',
-          maxHeight: isHeader ? '60px' : isSidebar ? '250px' : '220px',
-          objectFit: isFullWidth ? 'cover' : 'contain',
+          width: (isFullWidth || isSidebar) ? '100%' : 'auto',
+          height: 'auto',
+          maxHeight: isHeader ? '60px' : isSidebar ? '360px' : '220px',
+          objectFit: (isFullWidth || isSidebar) ? 'cover' : 'contain',
           display: 'block',
           margin: '0 auto',
-          borderRadius: '4px',
+          borderRadius: 'var(--radius)',
         }}
       />
     </a>
@@ -85,7 +85,7 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
       onMouseLeave={() => setIsPaused(false)}
       style={{
         position: 'relative',
-        width: isFullWidth ? '100%' : 'auto',
+        width: (isFullWidth || isSidebar) ? '100%' : 'auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
