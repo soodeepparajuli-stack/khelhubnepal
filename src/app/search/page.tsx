@@ -24,7 +24,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <>
-      <Navbar categories={categories} breakingNews={breakingNews} headerAd={headerAds[0] || null} />
+      <Navbar categories={categories} breakingNews={breakingNews} headerAds={headerAds} />
 
       <main>
         <div className="container" style={{ padding: '24px 16px' }}>

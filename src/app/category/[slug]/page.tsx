@@ -69,7 +69,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
   return (
     <>
-      <Navbar categories={categories} breakingNews={breakingNews} headerAd={headerAds[0] || null} />
+      <Navbar categories={categories} breakingNews={breakingNews} headerAds={headerAds} />
 
       <main>
         <div className="container">

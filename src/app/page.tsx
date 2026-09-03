@@ -29,7 +29,7 @@ export default async function HomePage() {
     volleyballNews,
     basketballNews,
     headerAds,
-    bannerAds,
+    inArticleAds,
     sidebarAds,
     footerAds,
   ] = await Promise.all([
@@ -42,20 +42,18 @@ export default async function HomePage() {
     getNewsByCategory('volleyball', 4),
     getNewsByCategory('basketball', 4),
     getAdsByPosition('header'),
-    getAdsByPosition('footer'),
+    getAdsByPosition('in-article'),
     getAdsByPosition('sidebar'),
     getAdsByPosition('footer'),
   ]);
 
-  const headerAd = headerAds[0] || null;
-  const bannerAd = bannerAds[0] || null;
 
   const heroMain = featuredNews[0] || latestNews[0];
   const heroSide = featuredNews.slice(1, 5).length > 0 ? featuredNews.slice(1, 5) : latestNews.slice(1, 5);
 
   return (
     <>
-      <Navbar categories={categories} breakingNews={breakingNews} headerAd={headerAd} />
+      <Navbar categories={categories} breakingNews={breakingNews} headerAds={headerAds} />
 
       <main>
         {/* Hero Section */}
@@ -76,11 +74,11 @@ export default async function HomePage() {
 
         <div className="section-divider" />
 
-        {/* Full-width Ad Banner */}
-        {bannerAd && (
+        {/* Full-width In-Article Ad Banner (between hero and news grid) */}
+        {inArticleAds.length > 0 && (
           <div className="container">
             <div className="ad-full-width">
-              <AdBanner ads={[bannerAd]} className="ad-full-width" />
+              <AdBanner ads={inArticleAds} className="ad-full-width" />
             </div>
           </div>
         )}

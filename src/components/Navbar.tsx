@@ -7,13 +7,15 @@ import { NewsArticle, Category, Ad } from '@/types';
 import { useState } from 'react';
 import { Calendar, Search, Radio, Phone, Mail } from 'lucide-react';
 
+import AdBanner from './AdBanner';
+
 interface NavbarProps {
   categories: Category[];
   breakingNews: NewsArticle[];
-  headerAd?: Ad | null;
+  headerAds?: Ad[];
 }
 
-export default function Navbar({ categories, breakingNews, headerAd }: NavbarProps) {
+export default function Navbar({ categories, breakingNews, headerAds = [] }: NavbarProps) {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -123,18 +125,9 @@ export default function Navbar({ categories, breakingNews, headerAd }: NavbarPro
             </Link>
 
             {/* Header Ad Space */}
-            {headerAd && headerAd.image_url ? (
+            {headerAds.length > 0 ? (
               <div className="header-ad">
-                <a href={headerAd.link_url || '#'} target="_blank" rel="noopener noreferrer">
-                  <Image
-                    src={headerAd.image_url}
-                    alt={headerAd.name}
-                    width={468}
-                    height={60}
-                    style={{ maxHeight: '60px', objectFit: 'contain' }}
-                    unoptimized
-                  />
-                </a>
+                <AdBanner ads={headerAds} className="ad-header" />
               </div>
             ) : (
               <div className="header-ad" style={{ display: 'none' }} />

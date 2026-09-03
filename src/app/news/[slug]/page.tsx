@@ -59,7 +59,6 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const relatedNews = await getRelatedNews(article.category_slug || '', slug, 5);
 
-  const headerAd = headerAds[0] || null;
 
   // Increment views (fire and forget)
   fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/views?slug=${slug}`, {
@@ -68,7 +67,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   return (
     <>
-      <Navbar categories={categories} breakingNews={breakingNews} headerAd={headerAd} />
+      <Navbar categories={categories} breakingNews={breakingNews} headerAds={headerAds} />
 
       <main>
         <div className="container">
