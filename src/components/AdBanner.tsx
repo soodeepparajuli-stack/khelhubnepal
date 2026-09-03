@@ -18,7 +18,7 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
     if (activeAds.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex(i => (i + 1) % activeAds.length);
-    }, 8000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [activeAds.length]);
 
@@ -85,7 +85,7 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
               height: 'auto',
               display: 'block',
               objectFit: 'contain',
-              maxHeight: className.includes('sidebar') ? '280px' : '120px',
+              maxHeight: className.includes('sidebar') ? '160px' : '60px',
             }}
           />
         </a>
