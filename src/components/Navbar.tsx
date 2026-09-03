@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { NewsArticle, Category, Ad } from '@/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Search, Radio, Phone, Mail } from 'lucide-react';
 
 import AdBanner from './AdBanner';
@@ -18,6 +18,15 @@ interface NavbarProps {
 export default function Navbar({ categories, breakingNews, headerAds = [] }: NavbarProps) {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 60);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Duplicate ticker items for seamless infinite scroll
   const tickerItems = [...breakingNews, ...breakingNews];
@@ -103,7 +112,7 @@ export default function Navbar({ categories, breakingNews, headerAds = [] }: Nav
       )}
 
       {/* Header */}
-      <header className="site-header">
+      <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
         <div className="container">
           <div className="header-inner">
             <Link href="/" className="site-logo">

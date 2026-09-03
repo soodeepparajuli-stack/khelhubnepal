@@ -26,7 +26,12 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getNewsBySlug(slug);
+  let decodedSlug = slug;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {}
+
+  const article = await getNewsBySlug(decodedSlug);
   if (!article) return { title: 'Article Not Found' };
 
   return {
@@ -45,9 +50,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params;
+  let decodedSlug = slug;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {}
 
   const [article, categories, breakingNews, headerAds, sidebarAds, inArticleAds] = await Promise.all([
-    getNewsBySlug(slug),
+    getNewsBySlug(decodedSlug),
     getCategories(),
     getBreakingNews(),
     getAdsByPosition('header'),
@@ -57,7 +66,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   if (!article) notFound();
 
-  const relatedNews = await getRelatedNews(article.category_slug || '', slug, 5);
+  const relatedNews = await getRelatedNews(article.category_slug || '', decodedSlug, 5);
 
 
   // Increment views (fire and forget)

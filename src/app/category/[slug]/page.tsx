@@ -47,16 +47,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CategoryPage({ params }: PageProps) {
   const { slug } = await params;
+  let decodedSlug = slug;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {}
 
   const [categories, breakingNews, articles, headerAds, sidebarAds] = await Promise.all([
     getCategories(),
     getBreakingNews(),
-    getNewsByCategory(slug, 20),
+    getNewsByCategory(decodedSlug, 20),
     getAdsByPosition('header'),
     getAdsByPosition('sidebar'),
   ]);
 
-  const category = categories.find(c => c.slug === slug);
+  const category = categories.find(c => c.slug === decodedSlug || c.slug === slug);
 
   // If not found in database categories or mock
   if (!category && articles.length === 0) {

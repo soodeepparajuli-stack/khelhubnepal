@@ -65,8 +65,14 @@ export async function getLatestNews(limit = 10): Promise<NewsArticle[]> {
 }
 
 export async function getNewsByCategory(categorySlug: string, limit = 8): Promise<NewsArticle[]> {
+  let decodedCat = categorySlug;
+  try {
+    decodedCat = decodeURIComponent(categorySlug);
+  } catch {}
+  const catsToTry = Array.from(new Set([decodedCat, categorySlug]));
+
   if (isPlaceholderSupabase) {
-    const filtered = MOCK_NEWS.filter(n => n.category_slug === categorySlug);
+    const filtered = MOCK_NEWS.filter(n => catsToTry.includes(n.category_slug || ''));
     return filtered.slice(0, limit);
   }
   try {
@@ -74,39 +80,53 @@ export async function getNewsByCategory(categorySlug: string, limit = 8): Promis
       .from('news')
       .select('*')
       .eq('is_published', true)
-      .eq('category_slug', categorySlug)
+      .in('category_slug', catsToTry)
       .order('published_at', { ascending: false })
       .limit(limit);
     if (error || !data || data.length === 0) {
-      return MOCK_NEWS.filter(n => n.category_slug === categorySlug).slice(0, limit);
+      return MOCK_NEWS.filter(n => catsToTry.includes(n.category_slug || '')).slice(0, limit);
     }
     return data;
   } catch {
-    return MOCK_NEWS.filter(n => n.category_slug === categorySlug).slice(0, limit);
+    return MOCK_NEWS.filter(n => catsToTry.includes(n.category_slug || '')).slice(0, limit);
   }
 }
 
-export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
+export async function getNewsBySlug(rawSlug: string): Promise<NewsArticle | null> {
+  let decodedSlug = rawSlug;
+  try {
+    decodedSlug = decodeURIComponent(rawSlug);
+  } catch {}
+  const slugsToTry = Array.from(new Set([decodedSlug, rawSlug]));
+
   if (isPlaceholderSupabase) {
-    return MOCK_NEWS.find(n => n.slug === slug) || null;
+    return MOCK_NEWS.find(n => slugsToTry.includes(n.slug)) || null;
   }
   try {
     const { data, error } = await supabase
       .from('news')
       .select('*')
-      .eq('slug', slug)
+      .in('slug', slugsToTry)
       .eq('is_published', true)
-      .single();
-    if (error || !data) return MOCK_NEWS.find(n => n.slug === slug) || null;
-    return data;
+      .limit(1);
+    if (error || !data || data.length === 0) {
+      return MOCK_NEWS.find(n => slugsToTry.includes(n.slug)) || null;
+    }
+    return data[0];
   } catch {
-    return MOCK_NEWS.find(n => n.slug === slug) || null;
+    return MOCK_NEWS.find(n => slugsToTry.includes(n.slug)) || null;
   }
 }
 
 export async function getRelatedNews(categorySlug: string, excludeSlug: string, limit = 5): Promise<NewsArticle[]> {
+  let decodedExclude = excludeSlug;
+  try {
+    decodedExclude = decodeURIComponent(excludeSlug);
+  } catch {}
+  const excludes = Array.from(new Set([decodedExclude, excludeSlug]));
+
   if (isPlaceholderSupabase) {
-    return MOCK_NEWS.filter(n => n.category_slug === categorySlug && n.slug !== excludeSlug).slice(0, limit);
+    return MOCK_NEWS.filter(n => n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
   }
   try {
     const { data, error } = await supabase
@@ -114,15 +134,15 @@ export async function getRelatedNews(categorySlug: string, excludeSlug: string, 
       .select('*')
       .eq('is_published', true)
       .eq('category_slug', categorySlug)
-      .neq('slug', excludeSlug)
+      .not('slug', 'in', `(${excludes.join(',')})`)
       .order('published_at', { ascending: false })
       .limit(limit);
     if (error || !data || data.length === 0) {
-      return MOCK_NEWS.filter(n => n.category_slug === categorySlug && n.slug !== excludeSlug).slice(0, limit);
+      return MOCK_NEWS.filter(n => n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
     }
     return data;
   } catch {
-    return MOCK_NEWS.filter(n => n.category_slug === categorySlug && n.slug !== excludeSlug).slice(0, limit);
+    return MOCK_NEWS.filter(n => n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
   }
 }
 

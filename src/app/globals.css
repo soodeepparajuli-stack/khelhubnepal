@@ -1616,35 +1616,48 @@ ul, ol {
   }
 
   .header-inner {
+    display: flex;
     flex-wrap: wrap;
-    gap: 10px;
     align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
   .site-logo {
     flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .site-logo img {
+    height: 44px;
+  }
+
+  .site-logo-text .brand-name {
+    font-size: 20px;
   }
 
   .header-search {
-    flex: 1;
-    min-width: 140px;
-    max-width: 220px;
+    flex: 0 1 180px;
+    max-width: 190px;
+    min-width: 120px;
     justify-content: flex-end;
   }
 
   .header-search form {
     width: 100%;
+    display: flex;
   }
 
   .header-search input {
+    flex: 1;
     width: 100%;
     min-width: 0;
     font-size: 13px;
-    padding: 6px 10px;
+    padding: 5px 8px;
   }
 
   .header-search button {
-    padding: 6px 10px;
+    padding: 5px 10px;
   }
 
   .header-ad {
@@ -1652,6 +1665,16 @@ ul, ol {
     max-width: 100%;
     order: 3;
     margin-top: 6px;
+    transition: all 0.2s ease;
+  }
+
+  /* When scrolled down on mobile: hide the header ad and keep only logo + search */
+  .site-header.is-scrolled {
+    padding: 6px 0;
+  }
+
+  .site-header.is-scrolled .header-ad {
+    display: none !important;
   }
 
   .top-bar-date {
@@ -1664,39 +1687,31 @@ ul, ol {
     padding: 8px 0;
   }
 
-  .header-inner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .site-logo {
-    justify-content: center;
-  }
-
   .site-logo img {
-    height: 46px;
+    height: 38px;
+  }
+
+  .site-logo-text .brand-name {
+    font-size: 18px;
+  }
+
+  .site-logo-text .brand-tagline {
+    font-size: 9px;
   }
 
   .header-search {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .header-search form {
-    width: 100%;
-    display: flex;
+    flex: 0 1 145px;
+    max-width: 155px;
+    min-width: 110px;
   }
 
   .header-search input {
-    flex: 1;
-    width: 100%;
-    min-width: 0;
+    font-size: 12px;
+    padding: 4px 6px;
   }
 
-  .header-ad {
-    width: 100%;
-    order: 3;
+  .header-search button {
+    padding: 4px 8px;
   }
 
   .news-grid {
