@@ -724,6 +724,27 @@ ul, ol {
   gap: 0;
 }
 
+.sidebar-cat-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--light-gray);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  color: inherit;
+}
+
+.sidebar-cat-link:hover {
+  color: var(--red);
+  padding-left: 12px;
+}
+
+.sidebar-cat-link:last-child {
+  border-bottom: none;
+}
+
 .sidebar-news-item {
   display: flex;
   gap: 10px;

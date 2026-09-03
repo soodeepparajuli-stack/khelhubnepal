@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -127,26 +128,15 @@ export default async function CategoryPage({ params }: PageProps) {
                 <div className="sidebar-section-header">📂 अन्य खेलकुद वर्ग</div>
                 <div style={{ padding: '8px' }}>
                   {categories
-                    .filter(c => c.slug !== slug)
+                    .filter(c => c.slug !== slug && c.slug !== decodedSlug)
                     .map(c => (
-                      <a
+                      <Link
                         key={c.slug}
                         href={`/category/${c.slug}`}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '10px 8px',
-                          borderBottom: '1px solid var(--light-gray)',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          transition: 'all 0.2s',
-                        }}
-                        onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--red)'; }}
-                        onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.color = 'inherit'; }}
+                        className="sidebar-cat-link"
                       >
                         <span>{getEmoji(c.slug)}</span> {c.name}
-                      </a>
+                      </Link>
                     ))
                   }
                 </div>
