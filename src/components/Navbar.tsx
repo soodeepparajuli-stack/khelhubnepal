@@ -115,23 +115,25 @@ export default function Navbar({ categories, breakingNews, headerAds = [] }: Nav
       <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
         <div className="container">
           <div className="header-inner">
-            <Link href="/" className="site-logo">
-              <Image
-                src="/logo.png"
-                alt="KhelHub Nepal Official Logo"
-                width={56}
-                height={56}
-                style={{ height: '56px', width: 'auto' }}
-                priority
-                unoptimized
-              />
-              <div className="site-logo-text">
-                <div className="brand-name">
-                  <span>KHEL</span><span>HUB</span>
+            <div className="header-left">
+              <Link href="/" className="site-logo">
+                <Image
+                  src="/logo.png"
+                  alt="KhelHub Nepal Official Logo"
+                  width={56}
+                  height={56}
+                  style={{ height: '56px', width: 'auto' }}
+                  priority
+                  unoptimized
+                />
+                <div className="site-logo-text">
+                  <div className="brand-name">
+                    <span>KHEL</span><span>HUB</span>
+                  </div>
+                  <div className="brand-tagline">— NEPAL —</div>
                 </div>
-                <div className="brand-tagline">— NEPAL —</div>
-              </div>
-            </Link>
+              </Link>
+            </div>
 
             {/* Header Ad Space */}
             {headerAds.length > 0 ? (

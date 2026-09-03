@@ -56,7 +56,8 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
       rel="noopener noreferrer sponsored"
       style={{
         display: 'block',
-        width: (isFullWidth || isSidebar) ? '100%' : 'auto',
+        width: '100%',
+        maxWidth: isHeader ? '480px' : 'none',
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -64,9 +65,10 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
         src={ad.image_url}
         alt={`Advertisement - ${ad.name}`}
         style={{
-          width: (isFullWidth || isSidebar) ? '100%' : 'auto',
+          width: '100%',
+          maxWidth: isHeader ? '480px' : '100%',
           height: 'auto',
-          maxHeight: isHeader ? '60px' : isFullWidth ? '240px' : 'none',
+          maxHeight: isHeader ? '75px' : isFullWidth ? '240px' : 'none',
           objectFit: isFullWidth ? 'cover' : 'contain',
           display: 'block',
           margin: '0 auto',
@@ -85,7 +87,7 @@ export default function AdBanner({ ads, className = '', style }: AdBannerProps) 
       onMouseLeave={() => setIsPaused(false)}
       style={{
         position: 'relative',
-        width: (isFullWidth || isSidebar) ? '100%' : 'auto',
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

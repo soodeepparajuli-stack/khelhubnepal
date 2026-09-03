@@ -221,6 +221,12 @@ ul, ol {
   gap: var(--gap);
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .site-logo {
   display: flex;
   align-items: center;
@@ -1617,11 +1623,20 @@ ul, ol {
   }
 
   .header-inner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-areas:
+      "logo search"
+      "ad   ad" !important;
+    align-items: center !important;
+    gap: 8px 12px !important;
+  }
+
+  .header-left {
+    grid-area: logo !important;
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
   }
 
   .site-logo {
@@ -1638,10 +1653,11 @@ ul, ol {
   }
 
   .header-search {
+    grid-area: search !important;
+    justify-self: end !important;
     flex: 0 1 180px;
     max-width: 190px;
     min-width: 120px;
-    justify-content: flex-end;
   }
 
   .header-search form {
@@ -1662,16 +1678,24 @@ ul, ol {
   }
 
   .header-ad {
-    width: 100%;
-    max-width: 100%;
-    order: 3;
-    margin-top: 6px;
+    grid-area: ad !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 4px;
+    padding-top: 4px;
     transition: all 0.2s ease;
   }
 
-  /* When scrolled down on mobile: hide the header ad and keep only logo + search */
+  /* When scrolled down on mobile: hide the header ad completely, leaving logo and search */
   .site-header.is-scrolled {
-    padding: 6px 0;
+    padding: 6px 0 !important;
+  }
+
+  .site-header.is-scrolled .header-inner {
+    grid-template-areas: "logo search" !important;
+    gap: 0 12px !important;
   }
 
   .site-header.is-scrolled .header-ad {
@@ -1688,6 +1712,10 @@ ul, ol {
     padding: 8px 0;
   }
 
+  .header-inner {
+    gap: 6px 8px !important;
+  }
+
   .site-logo img {
     height: 38px;
   }
@@ -1701,9 +1729,9 @@ ul, ol {
   }
 
   .header-search {
-    flex: 0 1 145px;
-    max-width: 155px;
-    min-width: 110px;
+    flex: 0 1 140px;
+    max-width: 150px;
+    min-width: 105px;
   }
 
   .header-search input {
