@@ -32,7 +32,25 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
   const [imageUrl, setImageUrl] = useState(initialData?.image_url || '');
   const [isFeatured, setIsFeatured] = useState(initialData?.is_featured || false);
   const [isBreaking, setIsBreaking] = useState(initialData?.is_breaking || false);
-  const [isPublished, setIsPublished] = useState(initialData?.is_published ?? true);
+  const [isBanner, setIsBanner] = useState(initialData?.is_banner || false);
+
+  // Status: published, draft, or scheduled
+  const initialStatus = (() => {
+    if (initialData?.is_published === false) return 'draft';
+    if (initialData?.published_at && new Date(initialData.published_at).getTime() > Date.now()) return 'scheduled';
+    return 'published';
+  })();
+  const [publishStatus, setPublishStatus] = useState<'published' | 'draft' | 'scheduled'>(initialStatus);
+  const [scheduledAt, setScheduledAt] = useState(() => {
+    if (initialData?.published_at && new Date(initialData.published_at).getTime() > Date.now()) {
+      const d = new Date(initialData.published_at);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().slice(0, 16);
+    }
+    const d = new Date(Date.now() + 2 * 3600 * 1000);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  });
 
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -96,6 +114,22 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
 
     const selectedCategory = categories.find(c => c.slug === categorySlug);
 
+    // Compute publish settings
+    let finalIsPublished = true;
+    let finalPublishedAt = initialData?.published_at || new Date().toISOString();
+
+    if (publishStatus === 'draft') {
+      finalIsPublished = false;
+    } else if (publishStatus === 'scheduled') {
+      finalIsPublished = true;
+      finalPublishedAt = new Date(scheduledAt).toISOString();
+    } else {
+      finalIsPublished = true;
+      if (!isEdit || (initialData?.published_at && new Date(initialData.published_at).getTime() > Date.now())) {
+        finalPublishedAt = new Date().toISOString();
+      }
+    }
+
     const payload = {
       ...(isEdit && initialData?.id ? { id: initialData.id } : {}),
       title: title.trim(),
@@ -109,7 +143,9 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
       image_url: imageUrl.trim() || null,
       is_featured: isFeatured,
       is_breaking: isBreaking,
-      is_published: isPublished,
+      is_banner: isBanner,
+      is_published: finalIsPublished,
+      published_at: finalPublishedAt,
     };
 
     try {
@@ -122,10 +158,18 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
       const json = await res.json();
 
       if (res.ok) {
-        setSuccess(isEdit ? 'Article updated successfully!' : 'Article published successfully!');
+        const successMsg = publishStatus === 'draft'
+          ? 'समाचार ड्राफ्टको रूपमा सुरक्षित गरियो!'
+          : publishStatus === 'scheduled'
+          ? 'समाचार सेड्युल गरियो!'
+          : isEdit
+          ? 'समाचार सफलतापूर्वक अपडेट भयो!'
+          : 'समाचार सफलतापूर्वक प्रकाशित भयो!';
+
+        setSuccess(successMsg);
         setTimeout(() => {
           router.push('/admin/news');
-        }, 1200);
+        }, 1000);
       } else {
         setError(json.error || 'Failed to save article.');
       }
@@ -135,6 +179,7 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
       setSaving(false);
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="admin-form" style={{ maxWidth: '900px' }}>
@@ -298,45 +343,197 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
         />
       </div>
 
-      {/* Flags */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-        <label className="form-check">
-          <input
-            type="checkbox"
-            checked={isFeatured}
-            onChange={e => setIsFeatured(e.target.checked)}
-          />
-          <span className="form-check-label">⭐ मुख्य समाचार (Featured on Hero)</span>
-        </label>
+      {/* Badges / Visibility Highlights */}
+      <div className="form-group" style={{ marginBottom: '20px' }}>
+        <label className="form-label">समाचार प्राथमिकता (Badges & Placement)</label>
+        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px 20px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+          <label className="form-check" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={isBanner}
+              onChange={e => setIsBanner(e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: 'var(--red)' }}
+            />
+            <span style={{ fontWeight: 600, color: isBanner ? '#ff6b70' : 'rgba(255,255,255,0.85)' }}>
+              🔥 ब्यानर न्यूज (Banner News - शीर्ष स्थानमा)
+            </span>
+          </label>
 
-        <label className="form-check">
-          <input
-            type="checkbox"
-            checked={isBreaking}
-            onChange={e => setIsBreaking(e.target.checked)}
-          />
-          <span className="form-check-label">🔴 ब्रेकिङ न्यूज (Breaking Ticker)</span>
-        </label>
+          <label className="form-check" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={e => setIsFeatured(e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#f39c12' }}
+            />
+            <span style={{ fontWeight: 600, color: isFeatured ? '#f39c12' : 'rgba(255,255,255,0.85)' }}>
+              ⭐ मुख्य समाचार (Featured on Hero)
+            </span>
+          </label>
 
-        <label className="form-check">
-          <input
-            type="checkbox"
-            checked={isPublished}
-            onChange={e => setIsPublished(e.target.checked)}
-          />
-          <span className="form-check-label">✓ तुरुन्त प्रकाशित गर्ने (Published)</span>
-        </label>
+          <label className="form-check" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={isBreaking}
+              onChange={e => setIsBreaking(e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: 'var(--red)' }}
+            />
+            <span style={{ fontWeight: 600, color: isBreaking ? '#ff4d4f' : 'rgba(255,255,255,0.85)' }}>
+              🔴 ब्रेकिङ न्यूज (Breaking Ticker)
+            </span>
+          </label>
+        </div>
+      </div>
+
+      {/* Publication Status (ड्राफ्ट, सेड्युल र तुरुन्त प्रकाशित) */}
+      <div className="form-group" style={{ marginBottom: '28px' }}>
+        <label className="form-label">प्रकाशन स्थिति (Publication Status) *</label>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '14px',
+          marginBottom: '16px',
+        }}>
+          {/* Publish Now */}
+          <label style={{
+            background: publishStatus === 'published' ? 'rgba(46, 204, 113, 0.15)' : 'rgba(255,255,255,0.03)',
+            border: publishStatus === 'published' ? '2px solid #2ecc71' : '1px solid rgba(255,255,255,0.1)',
+            padding: '16px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+            transition: 'all 0.2s',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <input
+                type="radio"
+                name="publishStatus"
+                value="published"
+                checked={publishStatus === 'published'}
+                onChange={() => setPublishStatus('published')}
+                style={{ accentColor: '#2ecc71', width: '18px', height: '18px' }}
+              />
+              <strong style={{ color: publishStatus === 'published' ? '#2ecc71' : '#fff', fontSize: '15px' }}>
+                🚀 तुरुन्त प्रकाशित (Publish Now)
+              </strong>
+            </div>
+            <small style={{ color: 'rgba(255,255,255,0.6)', paddingLeft: '28px', fontSize: '12px' }}>
+              सेभ हुनासाथ पाठकहरूलाई तुरुन्तै देखिनेछ।
+            </small>
+          </label>
+
+          {/* Draft */}
+          <label style={{
+            background: publishStatus === 'draft' ? 'rgba(241, 196, 15, 0.15)' : 'rgba(255,255,255,0.03)',
+            border: publishStatus === 'draft' ? '2px solid #f1c40f' : '1px solid rgba(255,255,255,0.1)',
+            padding: '16px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+            transition: 'all 0.2s',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <input
+                type="radio"
+                name="publishStatus"
+                value="draft"
+                checked={publishStatus === 'draft'}
+                onChange={() => setPublishStatus('draft')}
+                style={{ accentColor: '#f1c40f', width: '18px', height: '18px' }}
+              />
+              <strong style={{ color: publishStatus === 'draft' ? '#f1c40f' : '#fff', fontSize: '15px' }}>
+                📝 मस्यौदा / ड्राफ्ट (Draft)
+              </strong>
+            </div>
+            <small style={{ color: 'rgba(255,255,255,0.6)', paddingLeft: '28px', fontSize: '12px' }}>
+              एडमिनमा सुरक्षित रहनेछ, साइटमा देखिने छैन।
+            </small>
+          </label>
+
+          {/* Schedule */}
+          <label style={{
+            background: publishStatus === 'scheduled' ? 'rgba(155, 89, 182, 0.2)' : 'rgba(255,255,255,0.03)',
+            border: publishStatus === 'scheduled' ? '2px solid #9b59b6' : '1px solid rgba(255,255,255,0.1)',
+            padding: '16px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+            transition: 'all 0.2s',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <input
+                type="radio"
+                name="publishStatus"
+                value="scheduled"
+                checked={publishStatus === 'scheduled'}
+                onChange={() => setPublishStatus('scheduled')}
+                style={{ accentColor: '#9b59b6', width: '18px', height: '18px' }}
+              />
+              <strong style={{ color: publishStatus === 'scheduled' ? '#c39bd3' : '#fff', fontSize: '15px' }}>
+                ⏰ सेड्युल (Schedule for Later)
+              </strong>
+            </div>
+            <small style={{ color: 'rgba(255,255,255,0.6)', paddingLeft: '28px', fontSize: '12px' }}>
+              तोकिएको मिति र समय पुगेपछि मात्र देखिनेछ।
+            </small>
+          </label>
+        </div>
+
+        {/* Scheduled Date-Time Picker */}
+        {publishStatus === 'scheduled' && (
+          <div style={{
+            background: 'rgba(155, 89, 182, 0.1)',
+            border: '1px solid rgba(155, 89, 182, 0.3)',
+            padding: '18px',
+            borderRadius: '8px',
+            marginTop: '12px',
+          }}>
+            <label className="form-label" style={{ color: '#d7bde2', marginBottom: '8px', display: 'block' }}>
+              📅 प्रकाशित हुने मिति र समय (Scheduled Publish Date & Time) *
+            </label>
+            <input
+              type="datetime-local"
+              className="form-input"
+              value={scheduledAt}
+              onChange={e => setScheduledAt(e.target.value)}
+              required={publishStatus === 'scheduled'}
+              style={{ maxWidth: '340px', fontSize: '15px', colorScheme: 'dark' }}
+            />
+            <small style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginTop: '8px', display: 'block' }}>
+              💡 यो समाचार माथि तोकिएको मिति र समय नआएसम्म सार्वजनिक वेबसाइटमा देखिने छैन।
+            </small>
+          </div>
+        )}
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '12px' }}>
+      <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
         <button
           type="submit"
           className="btn btn-primary"
           disabled={saving}
-          style={{ padding: '12px 28px', fontSize: '15px' }}
+          style={{
+            padding: '12px 30px',
+            fontSize: '15px',
+            background: publishStatus === 'draft' ? '#d4ac0d' : publishStatus === 'scheduled' ? '#8e44ad' : 'var(--red)',
+            borderColor: publishStatus === 'draft' ? '#b7950b' : publishStatus === 'scheduled' ? '#7d3c98' : 'var(--red)',
+          }}
         >
-          {saving ? '⏳ Saving...' : isEdit ? '💾 Update Article' : '🚀 Publish Article'}
+          {saving
+            ? '⏳ सेभ हुँदैछ...'
+            : publishStatus === 'draft'
+            ? '💾 ड्राफ्ट सुरक्षित गर्नुस्'
+            : publishStatus === 'scheduled'
+            ? '⏰ सेड्युल पोस्ट सुरक्षित गर्नुस्'
+            : isEdit
+            ? '💾 समाचार अपडेट गर्नुस्'
+            : '🚀 तुरुन्त प्रकाशित गर्नुस्'}
         </button>
         <button
           type="button"
@@ -344,9 +541,10 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
           onClick={() => router.push('/admin/news')}
           style={{ padding: '12px 20px' }}
         >
-          Cancel
+          रद्द गर्नुस्
         </button>
       </div>
     </form>
   );
 }
+

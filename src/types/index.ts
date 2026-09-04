@@ -22,10 +22,27 @@ export interface NewsArticle {
   published_at: string;
   is_featured: boolean;
   is_breaking: boolean;
+  is_banner?: boolean;
   is_published: boolean;
+  status?: 'published' | 'draft' | 'scheduled';
   views: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  image_url: string | null;
+  bio?: string | null;
+  display_order: number;
+  email?: string | null;
+  phone?: string | null;
+  facebook_url?: string | null;
+  twitter_url?: string | null;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface Ad {
@@ -41,3 +58,4 @@ export interface Ad {
 }
 
 export type AdPosition = Ad['position'];
+

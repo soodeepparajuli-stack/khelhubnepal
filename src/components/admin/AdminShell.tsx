@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { LayoutDashboard, Newspaper, PenSquare, FolderTree, Megaphone, Globe, LogOut } from 'lucide-react';
+import { LayoutDashboard, Newspaper, PenSquare, FolderTree, Megaphone, Users, Globe, LogOut } from 'lucide-react';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -25,7 +25,9 @@ export default function AdminShell({ children, title }: AdminShellProps) {
     { href: '/admin/news/new', label: 'New Article', icon: PenSquare },
     { href: '/admin/categories', label: 'Categories', icon: FolderTree },
     { href: '/admin/ads', label: 'Manage Ads', icon: Megaphone },
+    { href: '/admin/team', label: 'Our Team (हाम्रो टिम)', icon: Users },
   ];
+
 
   return (
     <div className="admin-layout">

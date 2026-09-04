@@ -1,66 +1,111 @@
-import { NewsArticle, Category, Ad } from '@/types';
+import { NewsArticle, Category, Ad, TeamMember } from '@/types';
 import { supabase } from './supabase';
-import { MOCK_CATEGORIES, MOCK_NEWS, MOCK_ADS } from './mockData';
+import { MOCK_CATEGORIES, MOCK_NEWS, MOCK_ADS, MOCK_TEAM } from './mockData';
 
 const isPlaceholderSupabase = !process.env.NEXT_PUBLIC_SUPABASE_URL ||
   process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder') ||
   process.env.NEXT_PUBLIC_SUPABASE_URL.includes('example');
 
+const isPubliclyVisible = (n: NewsArticle) =>
+  n.is_published && (!n.published_at || new Date(n.published_at).getTime() <= Date.now());
+
 // ─── NEWS ─────────────────────────────────────────────────────────────
 
-export async function getFeaturedNews(): Promise<NewsArticle[]> {
+export async function getBannerNews(): Promise<NewsArticle[]> {
+  const nowIso = new Date().toISOString();
   if (isPlaceholderSupabase) {
-    return MOCK_NEWS.filter(n => n.is_featured);
+    const banners = MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_banner);
+    return banners.length > 0 ? banners : MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_featured).slice(0, 1);
+  }
+  try {
+    // Attempt to query with is_banner
+    const { data, error } = await supabase
+      .from('news')
+      .select('*')
+      .eq('is_published', true)
+      .lte('published_at', nowIso)
+      .eq('is_banner', true)
+      .order('published_at', { ascending: false })
+      .limit(5);
+
+    if (!error && data && data.length > 0) return data;
+
+    // If is_banner column doesn't return anything or doesn't exist, fallback to featured
+    const { data: featData, error: featErr } = await supabase
+      .from('news')
+      .select('*')
+      .eq('is_published', true)
+      .lte('published_at', nowIso)
+      .eq('is_featured', true)
+      .order('published_at', { ascending: false })
+      .limit(2);
+
+    if (!featErr && featData && featData.length > 0) return featData;
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && (n.is_banner || n.is_featured)).slice(0, 2);
+  } catch {
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && (n.is_banner || n.is_featured)).slice(0, 2);
+  }
+}
+
+export async function getFeaturedNews(): Promise<NewsArticle[]> {
+  const nowIso = new Date().toISOString();
+  if (isPlaceholderSupabase) {
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_featured);
   }
   try {
     const { data, error } = await supabase
       .from('news')
       .select('*')
       .eq('is_published', true)
+      .lte('published_at', nowIso)
       .eq('is_featured', true)
       .order('published_at', { ascending: false })
       .limit(5);
-    if (error || !data || data.length === 0) return MOCK_NEWS.filter(n => n.is_featured);
+    if (error || !data || data.length === 0) return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_featured);
     return data;
   } catch {
-    return MOCK_NEWS.filter(n => n.is_featured);
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_featured);
   }
 }
 
 export async function getBreakingNews(): Promise<NewsArticle[]> {
+  const nowIso = new Date().toISOString();
   if (isPlaceholderSupabase) {
-    return MOCK_NEWS.filter(n => n.is_breaking);
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_breaking);
   }
   try {
     const { data, error } = await supabase
       .from('news')
       .select('*')
       .eq('is_published', true)
+      .lte('published_at', nowIso)
       .eq('is_breaking', true)
       .order('published_at', { ascending: false })
       .limit(10);
-    if (error || !data || data.length === 0) return MOCK_NEWS.filter(n => n.is_breaking);
+    if (error || !data || data.length === 0) return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_breaking);
     return data as NewsArticle[];
   } catch {
-    return MOCK_NEWS.filter(n => n.is_breaking);
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_breaking);
   }
 }
 
 export async function getLatestNews(limit = 10): Promise<NewsArticle[]> {
+  const nowIso = new Date().toISOString();
   if (isPlaceholderSupabase) {
-    return MOCK_NEWS.slice(0, limit);
+    return MOCK_NEWS.filter(isPubliclyVisible).slice(0, limit);
   }
   try {
     const { data, error } = await supabase
       .from('news')
       .select('*')
       .eq('is_published', true)
+      .lte('published_at', nowIso)
       .order('published_at', { ascending: false })
       .limit(limit);
-    if (error || !data || data.length === 0) return MOCK_NEWS.slice(0, limit);
+    if (error || !data || data.length === 0) return MOCK_NEWS.filter(isPubliclyVisible).slice(0, limit);
     return data;
   } catch {
-    return MOCK_NEWS.slice(0, limit);
+    return MOCK_NEWS.filter(isPubliclyVisible).slice(0, limit);
   }
 }
 
@@ -70,9 +115,10 @@ export async function getNewsByCategory(categorySlug: string, limit = 8): Promis
     decodedCat = decodeURIComponent(categorySlug);
   } catch {}
   const catsToTry = Array.from(new Set([decodedCat, categorySlug]));
+  const nowIso = new Date().toISOString();
 
   if (isPlaceholderSupabase) {
-    const filtered = MOCK_NEWS.filter(n => catsToTry.includes(n.category_slug || ''));
+    const filtered = MOCK_NEWS.filter(n => isPubliclyVisible(n) && catsToTry.includes(n.category_slug || ''));
     return filtered.slice(0, limit);
   }
   try {
@@ -80,15 +126,16 @@ export async function getNewsByCategory(categorySlug: string, limit = 8): Promis
       .from('news')
       .select('*')
       .eq('is_published', true)
+      .lte('published_at', nowIso)
       .in('category_slug', catsToTry)
       .order('published_at', { ascending: false })
       .limit(limit);
     if (error || !data || data.length === 0) {
-      return MOCK_NEWS.filter(n => catsToTry.includes(n.category_slug || '')).slice(0, limit);
+      return MOCK_NEWS.filter(n => isPubliclyVisible(n) && catsToTry.includes(n.category_slug || '')).slice(0, limit);
     }
     return data;
   } catch {
-    return MOCK_NEWS.filter(n => catsToTry.includes(n.category_slug || '')).slice(0, limit);
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && catsToTry.includes(n.category_slug || '')).slice(0, limit);
   }
 }
 
@@ -124,27 +171,30 @@ export async function getRelatedNews(categorySlug: string, excludeSlug: string, 
     decodedExclude = decodeURIComponent(excludeSlug);
   } catch {}
   const excludes = Array.from(new Set([decodedExclude, excludeSlug]));
+  const nowIso = new Date().toISOString();
 
   if (isPlaceholderSupabase) {
-    return MOCK_NEWS.filter(n => n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
   }
   try {
     const { data, error } = await supabase
       .from('news')
       .select('*')
       .eq('is_published', true)
+      .lte('published_at', nowIso)
       .eq('category_slug', categorySlug)
       .not('slug', 'in', `(${excludes.join(',')})`)
       .order('published_at', { ascending: false })
       .limit(limit);
     if (error || !data || data.length === 0) {
-      return MOCK_NEWS.filter(n => n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
+      return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
     }
     return data;
   } catch {
-    return MOCK_NEWS.filter(n => n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
+    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.category_slug === categorySlug && !excludes.includes(n.slug)).slice(0, limit);
   }
 }
+
 
 // ─── CATEGORIES ───────────────────────────────────────────────────────
 
@@ -164,7 +214,27 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
+// ─── TEAM MEMBERS ──────────────────────────────────────────────────
+
+export async function getTeamMembers(): Promise<TeamMember[]> {
+  if (isPlaceholderSupabase) {
+    return MOCK_TEAM;
+  }
+  try {
+    const { data, error } = await supabase
+      .from('team_members')
+      .select('*')
+      .order('display_order', { ascending: true })
+      .order('created_at', { ascending: true });
+    if (error || !data || data.length === 0) return MOCK_TEAM;
+    return data;
+  } catch {
+    return MOCK_TEAM;
+  }
+}
+
 // ─── ADS ──────────────────────────────────────────────────────────────
+
 
 export async function getAdsByPosition(position: string): Promise<Ad[]> {
   if (isPlaceholderSupabase) {

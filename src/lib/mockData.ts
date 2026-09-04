@@ -1,4 +1,4 @@
-import { Category, NewsArticle, Ad } from '@/types';
+import { Category, NewsArticle, Ad, TeamMember } from '@/types';
 
 export const MOCK_CATEGORIES: Category[] = [
   { id: '1', name: 'फुटबल', slug: 'football', color: '#2ecc71', created_at: new Date().toISOString() },
@@ -27,6 +27,7 @@ export const MOCK_NEWS: NewsArticle[] = [
     published_at: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
     is_featured: true,
     is_breaking: true,
+    is_banner: true,
     is_published: true,
     views: 3420,
     created_at: new Date().toISOString(),
@@ -215,3 +216,51 @@ export const MOCK_ADS: Ad[] = [
     updated_at: new Date().toISOString(),
   }
 ];
+
+export const MOCK_TEAM: TeamMember[] = [
+  {
+    id: 'team-1',
+    name: 'सुदीप पराजुली',
+    role: 'प्रबन्ध निर्देशक तथा प्रधान सम्पादक',
+    image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop',
+    bio: 'नेपाली खेलकुद पत्रकारितामा दशक लामो अनुभव। KhelHub Nepal का संस्थापक।',
+    display_order: 1,
+    email: 'khelhub61@gmail.com',
+    phone: '९८६७४२३१९७',
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'team-2',
+    name: 'रोहित अधिकारी',
+    role: 'सम्पादक (Editor)',
+    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
+    bio: 'फुटबल र क्रिकेट विश्लेषणमा विशेष दक्षता।',
+    display_order: 2,
+    email: 'newskhelhub@gmail.com',
+    phone: null,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'team-3',
+    name: 'अनिता थापा',
+    role: 'वरिष्ठ खेलकुद संवाददाता',
+    image_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop',
+    bio: 'राष्ट्रिय तथा अन्तर्राष्ट्रिय भलिबल र महिला खेलकुद रिपोर्टिङ।',
+    display_order: 3,
+    email: null,
+    phone: null,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'team-4',
+    name: 'प्रमोद श्रेष्ठ',
+    role: 'फोटो पत्रकार तथा मल्टिमिडिया',
+    image_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop',
+    bio: 'खेल मैदानका जीवन्त क्षणहरूलाई क्यामरामा कैद गर्ने कुशल फोटो पत्रकार।',
+    display_order: 4,
+    email: null,
+    phone: null,
+    created_at: new Date().toISOString(),
+  }
+];
+

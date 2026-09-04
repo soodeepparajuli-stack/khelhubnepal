@@ -3,9 +3,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import NewsCard from '@/components/NewsCard';
 import AdBanner from '@/components/AdBanner';
+import BannerNews from '@/components/BannerNews';
 import CategorySection from '@/components/CategorySection';
 import {
   getCategories,
+  getBannerNews,
   getFeaturedNews,
   getBreakingNews,
   getLatestNews,
@@ -21,6 +23,7 @@ export default async function HomePage() {
   // Fetch all data in parallel
   const [
     categories,
+    bannerNews,
     featuredNews,
     breakingNews,
     latestNews,
@@ -34,6 +37,7 @@ export default async function HomePage() {
     footerAds,
   ] = await Promise.all([
     getCategories(),
+    getBannerNews(),
     getFeaturedNews(),
     getBreakingNews(),
     getLatestNews(12),
@@ -47,7 +51,6 @@ export default async function HomePage() {
     getAdsByPosition('footer'),
   ]);
 
-
   const heroMain = featuredNews[0] || latestNews[0];
   const heroSide = featuredNews.slice(1, 5).length > 0 ? featuredNews.slice(1, 5) : latestNews.slice(1, 5);
 
@@ -56,8 +59,14 @@ export default async function HomePage() {
       <Navbar categories={categories} breakingNews={breakingNews} headerAds={headerAds} />
 
       <main>
+        {/* Banner News (ब्यानर न्यूज) */}
+        {bannerNews.length > 0 && (
+          <BannerNews articles={bannerNews} />
+        )}
+
         {/* Hero Section */}
         {heroMain && (
+
           <section className="hero-section">
             <div className="container">
               <div className="hero-grid">

@@ -67,25 +67,40 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = createAdminClient();
-    const { data, error } = await supabase
+    const insertData: Record<string, any> = {
+      title: body.title,
+      slug: body.slug,
+      excerpt: body.excerpt,
+      content: body.content,
+      category_id: body.category_id || null,
+      category_name: body.category_name || null,
+      category_slug: body.category_slug || null,
+      image_url: body.image_url || null,
+      author: body.author || 'KhelHub Nepal',
+      published_at: body.published_at || new Date().toISOString(),
+      is_featured: body.is_featured || false,
+      is_breaking: body.is_breaking || false,
+      is_banner: body.is_banner || false,
+      is_published: body.is_published !== false,
+    };
+
+    let { data, error } = await supabase
       .from('news')
-      .insert([{
-        title: body.title,
-        slug: body.slug,
-        excerpt: body.excerpt,
-        content: body.content,
-        category_id: body.category_id || null,
-        category_name: body.category_name || null,
-        category_slug: body.category_slug || null,
-        image_url: body.image_url || null,
-        author: body.author || 'KhelHub Nepal',
-        published_at: body.published_at || new Date().toISOString(),
-        is_featured: body.is_featured || false,
-        is_breaking: body.is_breaking || false,
-        is_published: body.is_published !== false,
-      }])
+      .insert([insertData])
       .select()
       .single();
+
+    // If is_banner column not in remote DB yet, retry without it
+    if (error && (error.code === '42703' || error.message?.includes('is_banner'))) {
+      delete insertData.is_banner;
+      const retry = await supabase
+        .from('news')
+        .insert([insertData])
+        .select()
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ data }, { status: 201 });
@@ -110,12 +125,25 @@ export async function PUT(request: NextRequest) {
 
   try {
     const supabase = createAdminClient();
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('news')
       .update({ ...updateData, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single();
+
+    // If is_banner column not in remote DB yet, retry without it
+    if (error && (error.code === '42703' || error.message?.includes('is_banner'))) {
+      delete updateData.is_banner;
+      const retry = await supabase
+        .from('news')
+        .update({ ...updateData, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ data });
@@ -124,6 +152,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
+
 
 // DELETE - delete news article
 export async function DELETE(request: NextRequest) {
