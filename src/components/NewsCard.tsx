@@ -16,15 +16,19 @@ export default function NewsCard({ article, variant = 'default', showExcerpt = f
   if (variant === 'large') {
     return (
       <div className="hero-main-card">
-        <Link href={`/news/${article.slug}`}>
-          <Image
+        <Link href={`/news/${article.slug}`} style={{ display: 'block', height: '100%' }}>
+          <img
             src={imageUrl}
             alt={article.title}
-            width={800}
-            height={500}
-            style={{ width: '100%', height: '420px', objectFit: 'cover' }}
-            priority
-            unoptimized
+            style={{
+              width: '100%',
+              height: '100%',
+              minHeight: '340px',
+              maxHeight: '440px',
+              aspectRatio: '16/10',
+              objectFit: 'cover',
+              display: 'block',
+            }}
           />
           <div className="hero-main-overlay">
             {article.category_name && (
@@ -45,14 +49,25 @@ export default function NewsCard({ article, variant = 'default', showExcerpt = f
   if (variant === 'horizontal') {
     return (
       <div className="hero-side-card">
-        <Link href={`/news/${article.slug}`} style={{ flexShrink: 0 }}>
-          <Image
+        <Link
+          href={`/news/${article.slug}`}
+          style={{
+            width: '110px',
+            minWidth: '110px',
+            maxWidth: '110px',
+            height: '90px',
+            minHeight: '90px',
+            maxHeight: '90px',
+            flexShrink: 0,
+            display: 'block',
+            borderRadius: '6px',
+            overflow: 'hidden',
+          }}
+        >
+          <img
             src={imageUrl}
             alt={article.title}
-            width={110}
-            height={90}
-            style={{ width: '110px', height: '90px', objectFit: 'cover' }}
-            unoptimized
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
         </Link>
         <div className="hero-side-content">
@@ -71,17 +86,35 @@ export default function NewsCard({ article, variant = 'default', showExcerpt = f
   if (variant === 'sidebar') {
     return (
       <div className="sidebar-news-item">
-        <Link href={`/news/${article.slug}`}>
-          <Image
+        <Link
+          href={`/news/${article.slug}`}
+          className="sidebar-news-thumb"
+          style={{
+            width: '84px',
+            minWidth: '84px',
+            maxWidth: '84px',
+            height: '64px',
+            minHeight: '64px',
+            maxHeight: '64px',
+            flexShrink: 0,
+            display: 'block',
+            borderRadius: '6px',
+            overflow: 'hidden',
+            backgroundColor: 'var(--off-white, #f1f5f9)',
+          }}
+        >
+          <img
             src={imageUrl}
             alt={article.title}
-            width={72}
-            height={56}
-            style={{ width: '72px', height: '56px', objectFit: 'cover', borderRadius: '4px' }}
-            unoptimized
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
           />
         </Link>
-        <div className="sidebar-news-content">
+        <div className="sidebar-news-content" style={{ flex: 1, minWidth: 0 }}>
           <h4>
             <Link href={`/news/${article.slug}`}>{article.title}</Link>
           </h4>

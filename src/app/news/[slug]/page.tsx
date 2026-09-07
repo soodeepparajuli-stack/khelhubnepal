@@ -48,6 +48,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+function formatArticleContent(rawContent: string | null): string {
+  if (!rawContent || !rawContent.trim()) {
+    return '<p>सामग्री उपलब्ध छैन।</p>';
+  }
+
+  const trimmed = rawContent.trim();
+
+  // Check if content already contains block-level HTML tags
+  const hasBlockHtml = /<\s*(p|div|h[1-6]|blockquote|ul|ol|table|section|article)[^>]*>/i.test(trimmed);
+
+  if (hasBlockHtml) {
+    return trimmed;
+  }
+
+  // Plain text with line breaks from CMS textarea -> convert double newlines to <p>
+  const paragraphs = trimmed.split(/\r?\n\s*\r?\n/);
+
+  return paragraphs
+    .map(p => p.trim())
+    .filter(p => p.length > 0)
+    .map(p => {
+      const withBr = p.replace(/\r?\n/g, '<br />');
+      return `<p>${withBr}</p>`;
+    })
+    .join('\n');
+}
+
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params;
   let decodedSlug = slug;
@@ -151,7 +178,7 @@ export default async function ArticlePage({ params }: PageProps) {
               {/* Article Content */}
               <div
                 className="article-content"
-                dangerouslySetInnerHTML={{ __html: article.content || '<p>सामग्री उपलब्ध छैन।</p>' }}
+                dangerouslySetInnerHTML={{ __html: formatArticleContent(article.content) }}
               />
 
               {/* In-Article Ad (bottom) */}

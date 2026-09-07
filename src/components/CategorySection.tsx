@@ -14,9 +14,6 @@ interface CategorySectionProps {
 export default function CategorySection({ title, slug, articles, color = '#e31e24' }: CategorySectionProps) {
   if (articles.length === 0) return null;
 
-  const [mainArticle, ...restArticles] = articles;
-  const sideArticles = restArticles.slice(0, 3);
-
   return (
     <section className="category-section">
       <div className="container">
@@ -32,12 +29,8 @@ export default function CategorySection({ title, slug, articles, color = '#e31e2
         </div>
 
         <div className="category-grid">
-          {/* Large main card */}
-          <NewsCard article={mainArticle} variant="large" />
-
-          {/* Small side cards */}
-          {sideArticles.map(article => (
-            <NewsCard key={article.id} article={article} variant="default" />
+          {articles.slice(0, 4).map(article => (
+            <NewsCard key={article.id} article={article} variant="default" showExcerpt={false} />
           ))}
         </div>
       </div>
