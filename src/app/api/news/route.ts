@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+    MOCK_NEWS.unshift(newArticle as any);
     return NextResponse.json({ data: newArticle }, { status: 201 });
   }
 
@@ -81,6 +82,9 @@ export async function POST(request: NextRequest) {
       is_featured: body.is_featured || false,
       is_breaking: body.is_breaking || false,
       is_banner: body.is_banner || false,
+      banner_heading: body.banner_heading || null,
+      show_banner_image: body.show_banner_image !== false,
+      banner_order: body.banner_order !== undefined && body.banner_order !== null ? Number(body.banner_order) : 1,
       is_published: body.is_published !== false,
     };
 
@@ -90,8 +94,11 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-    // If is_banner column not in remote DB yet, retry without it
-    if (error && (error.code === '42703' || error.message?.includes('is_banner'))) {
+    // If new banner columns not in remote DB yet, retry without them
+    if (error && (error.code === '42703' || error.message?.includes('banner') || error.message?.includes('show_banner_image'))) {
+      delete insertData.banner_heading;
+      delete insertData.show_banner_image;
+      delete insertData.banner_order;
       delete insertData.is_banner;
       const retry = await supabase
         .from('news')
@@ -120,6 +127,10 @@ export async function PUT(request: NextRequest) {
   const { id, ...updateData } = body;
 
   if (isPlaceholder) {
+    const idx = MOCK_NEWS.findIndex(n => n.id === id);
+    if (idx !== -1) {
+      MOCK_NEWS[idx] = { ...MOCK_NEWS[idx], ...updateData, updated_at: new Date().toISOString() };
+    }
     return NextResponse.json({ data: { id, ...updateData } });
   }
 
@@ -132,8 +143,11 @@ export async function PUT(request: NextRequest) {
       .select()
       .single();
 
-    // If is_banner column not in remote DB yet, retry without it
-    if (error && (error.code === '42703' || error.message?.includes('is_banner'))) {
+    // If new banner columns not in remote DB yet, retry without them
+    if (error && (error.code === '42703' || error.message?.includes('banner') || error.message?.includes('show_banner_image'))) {
+      delete updateData.banner_heading;
+      delete updateData.show_banner_image;
+      delete updateData.banner_order;
       delete updateData.is_banner;
       const retry = await supabase
         .from('news')

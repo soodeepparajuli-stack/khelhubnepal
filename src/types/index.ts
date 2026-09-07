@@ -23,12 +23,16 @@ export interface NewsArticle {
   is_featured: boolean;
   is_breaking: boolean;
   is_banner?: boolean;
+  banner_heading?: string | null;      // Category / Kicker heading highlighted at start of big title
+  show_banner_image?: boolean;         // Whether to show or hide the image in banner news
+  banner_order?: number;               // 1, 2, 3, 4, 5... priority order
   is_published: boolean;
   status?: 'published' | 'draft' | 'scheduled';
   views: number;
   created_at: string;
   updated_at: string;
 }
+
 
 export interface TeamMember {
   id: string;

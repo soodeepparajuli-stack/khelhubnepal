@@ -1,253 +1,174 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { NewsArticle } from '@/types';
-import { formatDate, PLACEHOLDER_IMAGE } from '@/lib/data';
-import { Flame, Clock, Eye, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import { NewsArticle, Ad } from '@/types';
+import AdBanner from '@/components/AdBanner';
 
 interface BannerNewsProps {
   articles: NewsArticle[];
+  ads?: Ad[];
 }
 
-export default function BannerNews({ articles }: BannerNewsProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (articles.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % articles.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [articles.length]);
-
+export default function BannerNews({ articles, ads }: BannerNewsProps) {
   if (!articles || articles.length === 0) return null;
 
-  const current = articles[currentIndex] || articles[0];
+  const getBannerHeader = (article: NewsArticle) => {
+    return article.banner_heading?.trim() || article.category_name || '';
+  };
+
+  const getCleanTitle = (article: NewsArticle, header: string) => {
+    const title = article.title.trim();
+    if (header && title.toLowerCase().startsWith(header.toLowerCase())) {
+      const cleaned = title.slice(header.length).replace(/^[\s:–-]+/, '').trim();
+      if (cleaned) return cleaned;
+    }
+    return title;
+  };
 
   return (
-    <section className="banner-news-section" style={{ padding: '20px 0 10px 0' }}>
-      <div className="container">
-        <div style={{
-          background: 'linear-gradient(135deg, #0b1026 0%, #151b36 100%)',
-          borderRadius: '14px',
-          overflow: 'hidden',
-          boxShadow: '0 10px 30px rgba(11, 16, 38, 0.25)',
-          border: '1px solid rgba(227, 30, 36, 0.2)',
-          position: 'relative',
-        }}>
-          {/* Top Banner Tag Header */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '12px 20px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            background: 'rgba(0, 0, 0, 0.2)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{
-                background: 'var(--red)',
-                color: 'white',
-                padding: '4px 10px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: 800,
-                letterSpacing: '0.5px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                boxShadow: '0 2px 8px rgba(227, 30, 36, 0.4)',
-              }}>
-                <Flame size={14} className="animate-pulse" />
-                ब्यानर न्यूज (BANNER NEWS)
-              </span>
-              {current.category_name && (
-                <span style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  marginLeft: '6px',
-                }}>
-                  • {current.category_name}
-                </span>
-              )}
-            </div>
+    <section className="banner-news-section">
+      <div className="container" style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 20px' }}>
+        {articles.map((article, index) => {
+          const header = getBannerHeader(article);
+          const cleanTitle = getCleanTitle(article, header);
+          const showImage = article.show_banner_image !== false && !!article.image_url;
 
-            {/* Slider Controls if multiple */}
-            {articles.length > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '12px', marginRight: '6px' }}>
-                  {currentIndex + 1} / {articles.length}
-                </span>
-                <button
-                  onClick={() => setCurrentIndex((currentIndex - 1 + articles.length) % articles.length)}
+          return (
+            <div key={article.id || index} className="banner-news-item" style={{ marginBottom: '32px' }}>
+              {/* 1. Header (Category / Kicker) placed ABOVE the title - smaller than title */}
+              {header && (
+                <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                  <Link
+                    href={`/category/${article.category_slug || 'others'}`}
+                    className="banner-header-tag"
+                  >
+                    {header}
+                  </Link>
+                </div>
+              )}
+
+              {/* 2. Extra Big Headline with Hover Color Change */}
+              <div style={{ maxWidth: '1180px', margin: '0 auto 18px auto' }}>
+                <h2
                   style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: 'none',
-                    color: 'white',
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
+                    fontSize: 'clamp(30px, 5.2vw, 54px)',
+                    fontWeight: 900,
+                    lineHeight: 1.25,
+                    textAlign: 'center',
+                    margin: '0',
+                    letterSpacing: '-0.02em',
                   }}
-                  aria-label="Previous banner"
                 >
-                  <ChevronLeft size={16} />
-                </button>
-                <button
-                  onClick={() => setCurrentIndex((currentIndex + 1) % articles.length)}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: 'none',
-                    color: 'white',
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                  }}
-                  aria-label="Next banner"
-                >
-                  <ChevronRight size={16} />
-                </button>
+                  <Link
+                    href={`/news/${article.slug}`}
+                    className="banner-headline-link"
+                  >
+                    {cleanTitle}
+                  </Link>
+                </h2>
               </div>
-            )}
-          </div>
 
-          {/* Main Banner Content */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '0',
-          }}>
-            {/* Image Column */}
-            <div style={{ position: 'relative', minHeight: '280px', overflow: 'hidden' }}>
-              <Link href={`/news/${current.slug}`} style={{ display: 'block', width: '100%', height: '100%' }}>
-                <img
-                  src={current.image_url || PLACEHOLDER_IMAGE}
-                  alt={current.title}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    minHeight: '280px',
-                    maxHeight: '380px',
-                    objectFit: 'cover',
-                    display: 'block',
-                    transition: 'transform 0.4s ease',
-                  }}
-                  className="banner-img"
-                />
-              </Link>
-            </div>
-
-            {/* Content Column */}
-            <div style={{
-              padding: '28px 28px 24px 28px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              background: 'linear-gradient(180deg, rgba(17, 24, 54, 0.8) 0%, rgba(11, 16, 38, 0.95) 100%)',
-            }}>
-              <h2 style={{
-                fontSize: 'clamp(20px, 3.5vw, 26px)',
-                fontWeight: 800,
-                lineHeight: 1.4,
-                margin: '0 0 14px 0',
-              }}>
-                <Link
-                  href={`/news/${current.slug}`}
-                  style={{
-                    color: '#ffffff',
-                    textDecoration: 'none',
-                    transition: 'color 0.2s',
-                  }}
-                  className="banner-headline"
-                >
-                  {current.title}
-                </Link>
-              </h2>
-
-              {current.excerpt && (
-                <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '15px',
-                  lineHeight: 1.6,
-                  margin: '0 0 18px 0',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}>
-                  {current.excerpt}
-                </p>
-              )}
-
-              {/* Meta & CTA */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '12px',
-                marginTop: 'auto',
-                paddingTop: '14px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-              }}>
-                <div style={{
+              {/* 3. Centered Small Brand Logo Mark below headline */}
+              <div
+                style={{
                   display: 'flex',
+                  justifyContent: 'center',
                   alignItems: 'center',
-                  gap: '14px',
-                  fontSize: '13px',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                  flexWrap: 'wrap',
-                }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <User size={13} style={{ color: 'var(--red)' }} />
-                    {current.author || 'KhelHub'}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Clock size={13} />
-                    {formatDate(current.published_at)}
-                  </span>
-                  {current.views !== undefined && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Eye size={13} />
-                      {current.views.toLocaleString()}
-                    </span>
+                  marginBottom: showImage ? '22px' : '8px',
+                }}
+              >
+                <Link href={`/news/${article.slug}`} aria-label="KhelHub News">
+                  <div
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
+                      border: '1.5px solid rgba(0,0,0,0.08)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: '#fff',
+                      transition: 'transform 0.2s ease',
+                    }}
+                    className="banner-logo-badge"
+                  >
+                    <img
+                      src="/logo.png"
+                      alt="KhelHub"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                </Link>
+              </div>
+
+              {/* 4. Banner Image & Caption (Show / Hide controlled by Admin) */}
+              {showImage && (
+                <div style={{ maxWidth: '1120px', margin: '14px auto 0 auto' }}>
+                  <div className="banner-img-container">
+                    <Link href={`/news/${article.slug}`} style={{ display: 'block', width: '100%' }}>
+                      <img
+                        src={article.image_url!}
+                        alt={article.title}
+                        className="banner-img-hover"
+                      />
+                    </Link>
+                  </div>
+
+                  {/* Caption underneath the image */}
+                  {article.excerpt && (
+                    <div
+                      style={{
+                        marginTop: '12px',
+                        padding: '0 12px',
+                        textAlign: 'center',
+                        fontSize: '14px',
+                        color: 'var(--text-muted, #64748b)',
+                        lineHeight: 1.65,
+                        maxWidth: '1060px',
+                        margin: '12px auto 0 auto',
+                      }}
+                    >
+                      <span>{article.excerpt}</span>
+                      <Link
+                        href={`/news/${article.slug}`}
+                        style={{
+                          color: '#0070ba',
+                          fontWeight: 700,
+                          marginLeft: '6px',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        [..]
+                      </Link>
+                    </div>
                   )}
                 </div>
+              )}
 
-                <Link
-                  href={`/news/${current.slug}`}
+              {/* 5. In-Between Ad Banner (after item 2) */}
+              {index === 1 && ads && ads.length > 0 && (
+                <div style={{ margin: '36px auto 24px auto', maxWidth: '1120px', width: '100%' }}>
+                  <AdBanner ads={ads} className="ad-full-width" />
+                </div>
+              )}
+
+              {/* 6. Clean Divider between banner news articles (omit on last item) */}
+              {index < articles.length - 1 && (
+                <div
                   style={{
-                    background: 'var(--red)',
-                    color: '#ffffff',
-                    padding: '8px 18px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    transition: 'background 0.2s',
+                    width: '100%',
+                    maxWidth: '1120px',
+                    height: '1px',
+                    background: 'var(--border, rgba(0,0,0,0.09))',
+                    margin: '40px auto',
                   }}
-                >
-                  पुरा पढ्नुस् →
-                </Link>
-              </div>
+                />
+              )}
             </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </section>
   );

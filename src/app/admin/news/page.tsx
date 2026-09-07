@@ -265,10 +265,61 @@ export default function AdminNewsPage() {
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
-                      {article.is_banner && (
-                        <span className="badge" style={{ background: 'rgba(227,30,36,0.2)', color: '#ff6b70', border: '1px solid rgba(227,30,36,0.4)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                          <Flame size={10} /> Banner
-                        </span>
+                      {article.is_banner ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                          <span className="badge" style={{ background: 'rgba(227,30,36,0.2)', color: '#ff6b70', border: '1px solid rgba(227,30,36,0.4)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <Flame size={10} /> Banner
+                          </span>
+                          <select
+                            value={article.banner_order || 1}
+                            onChange={async (e) => {
+                              const newOrder = Number(e.target.value);
+                              await fetch('/api/news', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: article.id, banner_order: newOrder }),
+                              });
+                              fetchArticles();
+                            }}
+                            title="ब्यानर प्राथमिकता क्रम १-१० बदल्नुस्"
+                            style={{
+                              background: '#151b36',
+                              color: '#ff6b70',
+                              border: '1px solid rgba(227,30,36,0.5)',
+                              borderRadius: '4px',
+                              padding: '2px 4px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                              <option key={num} value={num}>#{num}</option>
+                            ))}
+                          </select>
+                          {article.banner_heading && <span style={{ color: '#38bdf8', fontSize: '10px' }}>({article.banner_heading})</span>}
+                          {article.show_banner_image === false && <span style={{ opacity: 0.75, fontSize: '9px' }}>[तस्बिर बन्द]</span>}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => toggleBanner(article)}
+                          style={{
+                            background: 'transparent',
+                            border: '1px dashed rgba(255,255,255,0.2)',
+                            color: 'rgba(255,255,255,0.4)',
+                            borderRadius: '4px',
+                            padding: '2px 6px',
+                            fontSize: '10px',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                          }}
+                          title="ब्यानर न्यूजमा थप्नुस्"
+                        >
+                          + Banner
+                        </button>
                       )}
                       {article.is_featured && (
                         <span className="badge badge-orange" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>

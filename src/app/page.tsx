@@ -59,9 +59,9 @@ export default async function HomePage() {
       <Navbar categories={categories} breakingNews={breakingNews} headerAds={headerAds} />
 
       <main>
-        {/* Banner News (ब्यानर न्यूज) */}
+        {/* Banner News (ब्यानर न्यूज - Big Title Style) */}
         {bannerNews.length > 0 && (
-          <BannerNews articles={bannerNews} />
+          <BannerNews articles={bannerNews} ads={inArticleAds} />
         )}
 
         {/* Hero Section */}

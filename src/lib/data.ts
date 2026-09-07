@@ -11,26 +11,41 @@ const isPubliclyVisible = (n: NewsArticle) =>
 
 // ─── NEWS ─────────────────────────────────────────────────────────────
 
-export async function getBannerNews(): Promise<NewsArticle[]> {
+export async function getBannerNews(limit = 10): Promise<NewsArticle[]> {
   const nowIso = new Date().toISOString();
   if (isPlaceholderSupabase) {
-    const banners = MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_banner);
-    return banners.length > 0 ? banners : MOCK_NEWS.filter(n => isPubliclyVisible(n) && n.is_featured).slice(0, 1);
+    const banners = MOCK_NEWS
+      .filter(n => isPubliclyVisible(n) && n.is_banner)
+      .sort((a, b) => (a.banner_order || 999) - (b.banner_order || 999));
+    return banners.length > 0 ? banners : MOCK_NEWS.filter(isPubliclyVisible).slice(0, 5);
   }
   try {
-    // Attempt to query with is_banner
+    // Attempt to query with is_banner and order by banner_order ascending
     const { data, error } = await supabase
       .from('news')
       .select('*')
       .eq('is_published', true)
       .lte('published_at', nowIso)
       .eq('is_banner', true)
+      .order('banner_order', { ascending: true })
       .order('published_at', { ascending: false })
-      .limit(5);
+      .limit(limit);
 
     if (!error && data && data.length > 0) return data;
 
-    // If is_banner column doesn't return anything or doesn't exist, fallback to featured
+    // Fallback without banner_order
+    const { data: fbData, error: fbErr } = await supabase
+      .from('news')
+      .select('*')
+      .eq('is_published', true)
+      .lte('published_at', nowIso)
+      .eq('is_banner', true)
+      .order('published_at', { ascending: false })
+      .limit(limit);
+
+    if (!fbErr && fbData && fbData.length > 0) return fbData;
+
+    // If no is_banner yet, fallback to featured
     const { data: featData, error: featErr } = await supabase
       .from('news')
       .select('*')
@@ -38,14 +53,21 @@ export async function getBannerNews(): Promise<NewsArticle[]> {
       .lte('published_at', nowIso)
       .eq('is_featured', true)
       .order('published_at', { ascending: false })
-      .limit(2);
+      .limit(5);
 
     if (!featErr && featData && featData.length > 0) return featData;
-    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && (n.is_banner || n.is_featured)).slice(0, 2);
+    const banners = MOCK_NEWS
+      .filter(n => isPubliclyVisible(n) && n.is_banner)
+      .sort((a, b) => (a.banner_order || 999) - (b.banner_order || 999));
+    return banners.length > 0 ? banners : MOCK_NEWS.filter(isPubliclyVisible).slice(0, 5);
   } catch {
-    return MOCK_NEWS.filter(n => isPubliclyVisible(n) && (n.is_banner || n.is_featured)).slice(0, 2);
+    const banners = MOCK_NEWS
+      .filter(n => isPubliclyVisible(n) && n.is_banner)
+      .sort((a, b) => (a.banner_order || 999) - (b.banner_order || 999));
+    return banners.length > 0 ? banners : MOCK_NEWS.filter(isPubliclyVisible).slice(0, 5);
   }
 }
+
 
 export async function getFeaturedNews(): Promise<NewsArticle[]> {
   const nowIso = new Date().toISOString();

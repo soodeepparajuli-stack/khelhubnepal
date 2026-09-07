@@ -4,8 +4,11 @@
 -- Link: https://supabase.com/dashboard/project/nvixnwtwilzezytqsjfp/sql
 -- ============================================================
 
--- 1. Add is_banner column to news table
+-- 1. Add banner news columns to news table (banner heading kicker, order, show/hide image)
 ALTER TABLE news ADD COLUMN IF NOT EXISTS is_banner BOOLEAN DEFAULT false;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS banner_heading TEXT;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS show_banner_image BOOLEAN DEFAULT true;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS banner_order INTEGER DEFAULT 1;
 
 -- 2. Create team_members (हाम्रो टिम) table
 CREATE TABLE IF NOT EXISTS team_members (

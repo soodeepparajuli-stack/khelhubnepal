@@ -31,14 +31,20 @@ CREATE TABLE IF NOT EXISTS news (
   is_featured BOOLEAN DEFAULT false,
   is_breaking BOOLEAN DEFAULT false,
   is_banner BOOLEAN DEFAULT false,
+  banner_heading TEXT,
+  show_banner_image BOOLEAN DEFAULT true,
+  banner_order INTEGER DEFAULT 1,
   is_published BOOLEAN DEFAULT true,
   views INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Ensure is_banner column exists on news table
+-- Ensure banner news columns exist on news table
 ALTER TABLE news ADD COLUMN IF NOT EXISTS is_banner BOOLEAN DEFAULT false;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS banner_heading TEXT;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS show_banner_image BOOLEAN DEFAULT true;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS banner_order INTEGER DEFAULT 1;
 
 -- 4. Our Team (हाम्रो टिम) table
 CREATE TABLE IF NOT EXISTS team_members (

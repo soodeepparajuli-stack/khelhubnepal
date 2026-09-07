@@ -33,6 +33,9 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
   const [isFeatured, setIsFeatured] = useState(initialData?.is_featured || false);
   const [isBreaking, setIsBreaking] = useState(initialData?.is_breaking || false);
   const [isBanner, setIsBanner] = useState(initialData?.is_banner || false);
+  const [bannerHeading, setBannerHeading] = useState(initialData?.banner_heading || '');
+  const [showBannerImage, setShowBannerImage] = useState(initialData?.show_banner_image !== false);
+  const [bannerOrder, setBannerOrder] = useState<number>(initialData?.banner_order || 1);
 
   // Status: published, draft, or scheduled
   const initialStatus = (() => {
@@ -144,6 +147,9 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
       is_featured: isFeatured,
       is_breaking: isBreaking,
       is_banner: isBanner,
+      banner_heading: isBanner ? (bannerHeading.trim() || null) : null,
+      show_banner_image: isBanner ? showBannerImage : true,
+      banner_order: isBanner ? (Number(bannerOrder) || 1) : null,
       is_published: finalIsPublished,
       published_at: finalPublishedAt,
     };
@@ -384,6 +390,91 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
           </label>
         </div>
       </div>
+
+      {/* Banner News Specific Controls */}
+      {isBanner && (
+        <div style={{
+          background: 'rgba(227, 30, 36, 0.08)',
+          border: '1px solid rgba(227, 30, 36, 0.3)',
+          borderRadius: '8px',
+          padding: '18px 20px',
+          marginBottom: '24px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '18px' }}>🔥</span>
+            <strong style={{ color: '#ff6b70', fontSize: '15px' }}>
+              ब्यानर न्यूज सेटिङहरू (Banner News Settings)
+            </strong>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            {/* Banner Heading / Kicker */}
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" style={{ fontSize: '13px' }}>
+                ब्यानर हेडर (Banner Header - शीर्षकभन्दा माथि देखिने)
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                value={bannerHeading}
+                onChange={e => setBannerHeading(e.target.value)}
+                placeholder="जस्तै: क्यान, फुटबल, रोमान्चक, विश्वकप"
+                style={{ fontSize: '14px' }}
+              />
+              <small style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+                यो हेडर मुख्य ठूलो शीर्षकभन्दा ठिक माथि सानो अक्षरमा निलो (Blue) रङमा देखिनेछ।
+              </small>
+            </div>
+
+            {/* Banner Order Dropdown */}
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" style={{ fontSize: '13px' }}>
+                ब्यानर प्रदर्शन क्रम (Priority Order १ देखि १०)
+              </label>
+              <select
+                className="form-select"
+                value={bannerOrder}
+                onChange={e => setBannerOrder(Number(e.target.value))}
+                style={{ fontSize: '14px', background: 'rgba(255,255,255,0.06)', color: '#fff' }}
+              >
+                <option value={1}>स्थान १ (सबैभन्दा माथि - पहिलो ब्यानर)</option>
+                <option value={2}>स्थान २ (दोस्रो ब्यानर)</option>
+                <option value={3}>स्थान ३ (तेस्रो ब्यानर)</option>
+                <option value={4}>स्थान ४ (चौथो ब्यानर)</option>
+                <option value={5}>स्थान ५ (पाँचौँ ब्यानर)</option>
+                <option value={6}>स्थान ६ (छैटौँ ब्यानर)</option>
+                <option value={7}>स्थान ७ (सातौँ ब्यानर)</option>
+                <option value={8}>स्थान ८ (आठौँ ब्यानर)</option>
+                <option value={9}>स्थान ९ (नवौँ ब्यानर)</option>
+                <option value={10}>स्थान १० (दशौँ ब्यानर)</option>
+              </select>
+              <small style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+                १ सबैभन्दा माथि देखिन्छ, त्यसपछि २, ३, ४, ५... क्रमबद्ध देखिनेछ।
+              </small>
+            </div>
+          </div>
+
+          {/* Show / Hide Banner Image */}
+          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={showBannerImage}
+                onChange={e => setShowBannerImage(e.target.checked)}
+                style={{ width: '18px', height: '18px', accentColor: 'var(--red)' }}
+              />
+              <div>
+                <strong style={{ fontSize: '14px', color: '#fff' }}>
+                  ब्यानरमा तस्बिर देखाउने (Show Banner Image)
+                </strong>
+                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>
+                  अनचेक गर्दा तस्बिर लुक्नेछ, केवल ठूलो शीर्षक र लोगो मात्र देखिनेछ।
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Publication Status (ड्राफ्ट, सेड्युल र तुरुन्त प्रकाशित) */}
       <div className="form-group" style={{ marginBottom: '28px' }}>

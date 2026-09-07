@@ -1782,3 +1782,66 @@ ul, ol {
     text-align: center;
   }
 }
+
+/* ─── BANNER NEWS (BIG TITLE STYLE) ───────────────────────── */
+.banner-news-section {
+  padding: 30px 0 16px 0;
+  background: var(--bg-primary, #ffffff);
+}
+
+.banner-header-tag {
+  display: inline-block;
+  color: #0070ba;
+  font-size: clamp(16px, 2.2vw, 22px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.banner-header-tag:hover {
+  color: var(--red, #e31e24) !important;
+}
+
+.banner-headline-link {
+  color: var(--text-primary, #0f172a);
+  text-decoration: none;
+  display: inline-block;
+  transition: color 0.22s ease;
+}
+
+.banner-headline-link:hover {
+  color: var(--red, #e31e24) !important;
+}
+
+.banner-news-item:hover .banner-headline-link {
+  color: var(--red, #e31e24);
+}
+
+.banner-img-container {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 0, 0, 0.04);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.banner-img-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14) !important;
+}
+
+.banner-img-hover {
+  width: 100%;
+  height: auto;
+  max-height: 640px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.banner-img-container:hover .banner-img-hover {
+  transform: scale(1.025);
+}
+
