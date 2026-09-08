@@ -269,6 +269,9 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
       {/* Featured Image */}
       <div className="form-group">
         <label className="form-label">तस्बिर (Featured Image)</label>
+        <small style={{ color: '#38bdf8', fontSize: '12px', display: 'block', marginBottom: '8px', lineHeight: 1.5 }}>
+          📸 <strong>सिफारिस गरिएको साइज (Recommended Size):</strong> <strong>1200 × 675</strong> पिक्सेल वा <strong>1280 × 720</strong> (16:9 Landscape - तेर्सो फोटो)। तेर्सो फोटो प्रयोग गर्दा तस्बिर कत्ति पनि नछोपी पूरै देखिन्छ।
+        </small>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
           <input
             type="file"
