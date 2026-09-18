@@ -73,9 +73,14 @@ export default function Footer() {
               <ul>
                 <li><Link href="/"><ChevronRight size={13} /> गृहपृष्ठ</Link></li>
                 <li><Link href="/about"><ChevronRight size={13} /> हाम्रो बारे</Link></li>
+                <li><Link href="/team"><ChevronRight size={13} /> हाम्रो टिम</Link></li>
                 <li><Link href="/contact"><ChevronRight size={13} /> सम्पर्क</Link></li>
-                <li><Link href="/privacy"><ChevronRight size={13} /> गोपनीयता नीति</Link></li>
-                <li><Link href="/terms"><ChevronRight size={13} /> सेवा शर्तहरू</Link></li>
+                <li style={{ paddingTop: '6px', borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '4px' }}>
+                  <span style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '12.5px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
+                    <ChevronRight size={13} style={{ flexShrink: 0, marginTop: '3px', color: '#ff4d4f' }} />
+                    <span>सुचना विभाग दर्ता नं.: ५५३२-२०८३/२०८४</span>
+                  </span>
+                </li>
               </ul>
             </div>
 
@@ -120,6 +125,9 @@ export default function Footer() {
       <div className="container">
         <div className="footer-bottom">
           <span>© {currentYear} KhelHub Nepal (khelhubnepal.com). सर्वाधिकार सुरक्षित।</span>
+          <span style={{ fontWeight: 600, color: '#ffffff', opacity: 0.95 }}>
+            सुचना विभाग दर्ता नं.: ५५३२-२०८३/२०८४
+          </span>
           <span>काठमाडौं महानगरपालिका ७ चाबहिल, नेपाल</span>
         </div>
       </div>

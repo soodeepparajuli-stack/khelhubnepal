@@ -6,7 +6,7 @@ import { Users, Phone, Mail } from 'lucide-react';
 
 export const metadata = {
   title: 'हाम्रो बारे (About Us) | KhelHub Nepal',
-  description: 'KhelHub Nepal नेपाली खेलकुद क्षेत्रलाई समर्पित एक स्वतन्त्र, निष्पक्ष र व्यावसायिक अनलाइन डिजिटल खेलकुद मिडिया हो।',
+  description: 'KhelHub Nepal नेपाली खेलकुद क्षेत्रलाई केन्द्रमा राखेर सञ्चालन गरिएको डिजिटल खेलकुद सञ्चारमाध्यम हो। अक्षरेखा मिडिया प्रा.लि. अन्तर्गत सञ्चालित KhelHub Nepal ले नेपाल तथा विश्वभरका खेलकुद गतिविधिसँग सम्बन्धित समाचार, सूचना, विश्लेषण तथा विशेष सामग्रीहरू पाठकमाझ प्रस्तुत गर्दै आएको छ।',
 };
 
 export const revalidate = 60;
@@ -46,12 +46,26 @@ export default async function AboutPage() {
             <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--navy)' }}>
               हाम्रो बारे (About Us)
             </h1>
-            <div style={{ width: '48px', height: '3px', background: 'var(--red)', margin: '10px auto 0', borderRadius: '2px' }} />
+            <div style={{ width: '48px', height: '3px', background: 'var(--red)', margin: '10px auto 14px', borderRadius: '2px' }} />
+            
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'rgba(26, 35, 87, 0.05)',
+              border: '1px solid rgba(26, 35, 87, 0.12)',
+              padding: '6px 16px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--navy)',
+            }}>
+              सुचना विभाग दर्ता नं.: ५५३२-२०८३/२०८४
+            </div>
           </div>
 
-          {/* About Paragraph - Exact and only paragraph requested by client */}
+          {/* About Paragraph - Exact text requested by client */}
           <div style={{
-            fontSize: '17px',
+            fontSize: '16px',
             lineHeight: 1.9,
             color: '#2c3e50',
             textAlign: 'justify',
@@ -63,7 +77,7 @@ export default async function AboutPage() {
             boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)'
           }}>
             <p style={{ margin: 0 }}>
-              <strong>KhelHub Nepal</strong> नेपाली खेलकुद क्षेत्रलाई समर्पित एक स्वतन्त्र, निष्पक्ष र व्यावसायिक अनलाइन डिजिटल खेलकुद मिडिया हो। खेलकुद क्षेत्रका गतिविधि, खेलाडीहरूको मिहिनेत, राष्ट्रिय तथा अन्तर्राष्ट्रिय प्रतियोगिताहरूलाई तथ्यपरक र निष्पक्ष ढंगले नेपाली पाठक र दर्शकमाझ पुर्‍याउनु हाम्रो प्रमुख उद्देश्य हो।
+              <strong>KhelHub Nepal</strong> नेपाली खेलकुद क्षेत्रलाई केन्द्रमा राखेर सञ्चालन गरिएको डिजिटल खेलकुद सञ्चारमाध्यम हो। <strong>अक्षरेखा मिडिया प्रा.लि.</strong> अन्तर्गत सञ्चालित KhelHub Nepal ले नेपाल तथा विश्वभरका खेलकुद गतिविधिसँग सम्बन्धित समाचार, सूचना, विश्लेषण तथा विशेष सामग्रीहरू पाठकमाझ प्रस्तुत गर्दै आएको छ। फुटबल, क्रिकेट, मार्सल आर्ट्स, भलिबललगायत विभिन्न खेलकुदका गतिविधिलाई प्राथमिकतामा राख्दै हामी नेपाली खेलाडी, टोली, प्रतियोगिता तथा खेलकुदसँग सम्बन्धित समसामयिक विषयलाई सरल, तथ्यपरक र विश्वसनीय ढंगले प्रस्तुत गर्ने प्रयास गर्छौं । नेपालमा खेलकुद पत्रकारिताको डिजिटल पहुँच विस्तार गर्ने र नेपाली खेलाडी तथा खेलकुदको विषयलाई राष्ट्रिय तथा अन्तर्राष्ट्रिय स्तरसम्म पुर्याउने उद्देश्य KhelHub Nepal को मुख्य प्राथमिकता हो ।
             </p>
           </div>
 
