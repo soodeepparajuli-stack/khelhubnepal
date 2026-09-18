@@ -182,6 +182,9 @@ export default function Navbar({ categories, breakingNews, headerAds = [] }: Nav
             <Link href="/about" className={`nav-link ${pathname === '/about' ? 'active' : ''}`}>
               हाम्रो बारे
             </Link>
+            <Link href="/team" className={`nav-link ${pathname === '/team' ? 'active' : ''}`}>
+              हाम्रो टिम
+            </Link>
             <Link href="/contact" className={`nav-link ${pathname === '/contact' ? 'active' : ''}`}>
               सम्पर्क
             </Link>

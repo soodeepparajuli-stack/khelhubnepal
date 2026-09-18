@@ -1,8 +1,9 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
-import { getCategories, getBreakingNews, getTeamMembers, getAdsByPosition } from '@/lib/data';
-import { Users, Phone, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { getCategories, getBreakingNews, getAdsByPosition } from '@/lib/data';
+import { Users, Phone, ArrowRight, ShieldCheck, Building2, MapPin } from 'lucide-react';
 
 export const metadata = {
   title: 'हाम्रो बारे (About Us) | KhelHub Nepal',
@@ -12,11 +13,10 @@ export const metadata = {
 export const revalidate = 60;
 
 export default async function AboutPage() {
-  const [categories, breakingNews, headerAds, teamMembers] = await Promise.all([
+  const [categories, breakingNews, headerAds] = await Promise.all([
     getCategories(),
     getBreakingNews(),
     getAdsByPosition('header'),
-    getTeamMembers(),
   ]);
 
   return (
@@ -26,7 +26,7 @@ export default async function AboutPage() {
       <main className="container" style={{ padding: '40px 16px', minHeight: '65vh' }}>
         <div style={{
           background: 'white',
-          padding: '40px 32px',
+          padding: '44px 36px',
           borderRadius: 'var(--radius)',
           border: '1px solid var(--light-gray)',
           maxWidth: '920px',
@@ -43,37 +43,39 @@ export default async function AboutPage() {
               style={{ margin: '0 auto 16px', display: 'block' }}
               unoptimized
             />
-            <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--navy)' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--navy)', margin: '0 0 6px 0' }}>
               हाम्रो बारे (About Us)
             </h1>
             <div style={{ width: '48px', height: '3px', background: 'var(--red)', margin: '10px auto 14px', borderRadius: '2px' }} />
-            
+
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
+              gap: '6px',
               background: 'rgba(26, 35, 87, 0.05)',
               border: '1px solid rgba(26, 35, 87, 0.12)',
-              padding: '6px 16px',
+              padding: '6px 18px',
               borderRadius: '20px',
               fontSize: '13px',
               fontWeight: 600,
               color: 'var(--navy)',
             }}>
-              सुचना विभाग दर्ता नं.: ५५३२-२०८३/२०८४
+              <ShieldCheck size={16} style={{ color: 'var(--red)' }} />
+              <span>सुचना विभाग दर्ता नं.: ५५३२-२०८३/२०८४</span>
             </div>
           </div>
 
           {/* About Paragraph - Exact text requested by client */}
           <div style={{
-            fontSize: '16px',
-            lineHeight: 1.9,
+            fontSize: '16.5px',
+            lineHeight: 1.95,
             color: '#2c3e50',
             textAlign: 'justify',
             background: 'var(--off-white)',
-            padding: '24px 28px',
+            padding: '28px 32px',
             borderRadius: '10px',
             borderLeft: '4px solid var(--red)',
-            marginBottom: '48px',
+            marginBottom: '36px',
             boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)'
           }}>
             <p style={{ margin: 0 }}>
@@ -81,138 +83,164 @@ export default async function AboutPage() {
             </p>
           </div>
 
-          {/* Our Team Section */}
-          <div id="team" style={{ marginTop: '12px' }}>
+          {/* Institutional Info Card */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '16px',
+            marginBottom: '36px',
+          }}>
             <div style={{
+              background: 'white',
+              border: '1px solid var(--light-gray)',
+              borderRadius: '10px',
+              padding: '20px',
               display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              borderBottom: '2px solid var(--navy)',
-              paddingBottom: '12px',
-              marginBottom: '28px'
+              gap: '14px',
+              alignItems: 'flex-start',
             }}>
-              <Users size={24} style={{ color: 'var(--red)' }} />
-              <h2 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
-                हाम्रो टिम (Our Team)
-              </h2>
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: '8px',
+                background: 'rgba(26, 35, 87, 0.08)',
+                color: 'var(--navy)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Building2 size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: '12px', color: 'var(--dark-gray)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>सञ्चालक संस्था</div>
+                <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--navy)', marginTop: '2px' }}>
+                  अक्षरेखा मिडिया प्रा.लि.
+                </div>
+              </div>
             </div>
 
-            {teamMembers.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--dark-gray)', padding: '24px' }}>
-                टिम विवरण चाँडै अपडेट गरिँदैछ।
-              </p>
-            ) : (
+            <div style={{
+              background: 'white',
+              border: '1px solid var(--light-gray)',
+              borderRadius: '10px',
+              padding: '20px',
+              display: 'flex',
+              gap: '14px',
+              alignItems: 'flex-start',
+            }}>
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                gap: '24px',
+                width: 40,
+                height: 40,
+                borderRadius: '8px',
+                background: 'rgba(227, 30, 36, 0.08)',
+                color: 'var(--red)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
               }}>
-                {teamMembers.map(member => (
-                  <div
-                    key={member.id}
-                    style={{
-                      background: 'white',
-                      border: '1px solid var(--light-gray)',
-                      borderRadius: '12px',
-                      padding: '24px 20px',
-                      textAlign: 'center',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                      boxShadow: 'var(--shadow-sm)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {/* Avatar */}
-                    <div style={{
-                      width: '100px',
-                      height: '100px',
-                      borderRadius: '50%',
-                      overflow: 'hidden',
-                      marginBottom: '16px',
-                      border: '3px solid var(--off-white)',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
-                      background: 'var(--navy)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      {member.image_url ? (
-                        <img
-                          src={member.image_url}
-                          alt={member.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <Users size={40} style={{ color: 'white', opacity: 0.8 }} />
-                      )}
-                    </div>
-
-                    {/* Name & Role */}
-                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--navy)', margin: '0 0 6px 0' }}>
-                      {member.name}
-                    </h3>
-                    <div style={{
-                      display: 'inline-block',
-                      background: 'rgba(227,30,36,0.1)',
-                      color: 'var(--red)',
-                      padding: '4px 12px',
-                      borderRadius: '16px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      marginBottom: member.bio || member.phone || member.email ? '12px' : '0',
-                    }}>
-                      {member.role}
-                    </div>
-
-                    {/* Bio */}
-                    {member.bio && (
-                      <p style={{
-                        fontSize: '13px',
-                        color: 'var(--dark-gray)',
-                        lineHeight: 1.6,
-                        margin: '0 0 14px 0',
-                      }}>
-                        {member.bio}
-                      </p>
-                    )}
-
-                    {/* Contact Links */}
-                    {(member.phone || member.email) && (
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px',
-                        fontSize: '12px',
-                        color: 'var(--dark-gray)',
-                        borderTop: '1px solid var(--light-gray)',
-                        paddingTop: '12px',
-                        width: '100%',
-                      }}>
-                        {member.phone && (
-                          <a
-                            href={`tel:${member.phone}`}
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: 'var(--navy)', textDecoration: 'none' }}
-                          >
-                            <Phone size={13} style={{ color: '#2ecc71' }} />
-                            <span>{member.phone}</span>
-                          </a>
-                        )}
-                        {member.email && (
-                          <a
-                            href={`mailto:${member.email}`}
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: 'var(--navy)', textDecoration: 'none' }}
-                          >
-                            <Mail size={13} style={{ color: '#3498db' }} />
-                            <span>{member.email}</span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                <MapPin size={20} />
               </div>
-            )}
+              <div>
+                <div style={{ fontSize: '12px', color: 'var(--dark-gray)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>कार्यालय ठेगाना</div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--navy)', marginTop: '2px' }}>
+                  काठमाडौं महानगरपालिका ७ चाबहिल, नेपाल
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Action Banners */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '20px',
+            borderTop: '1px solid var(--light-gray)',
+            paddingTop: '32px',
+          }}>
+            {/* Our Team Card */}
+            <div style={{
+              background: 'var(--off-white)',
+              borderRadius: '10px',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              border: '1px solid var(--light-gray)',
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--red)', marginBottom: '8px' }}>
+                  <Users size={20} />
+                  <span style={{ fontWeight: 700, fontSize: '16px', color: 'var(--navy)' }}>हाम्रो टिम (Our Team)</span>
+                </div>
+                <p style={{ fontSize: '13.5px', color: 'var(--dark-gray)', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+                  KhelHub Nepal का पत्रकार, विश्लेषक तथा व्यवस्थापन टिमका सदस्यहरूको विस्तृत विवरण हेर्नुहोस्।
+                </p>
+              </div>
+              <Link
+                href="/team"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'var(--navy)',
+                  color: 'white',
+                  padding: '10px 18px',
+                  borderRadius: '6px',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  alignSelf: 'flex-start',
+                  transition: 'background 0.2s ease',
+                }}
+              >
+                <span>टिम सदस्यहरू हेर्नुहोस्</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+
+            {/* Contact Card */}
+            <div style={{
+              background: 'var(--off-white)',
+              borderRadius: '10px',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              border: '1px solid var(--light-gray)',
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2ecc71', marginBottom: '8px' }}>
+                  <Phone size={20} />
+                  <span style={{ fontWeight: 700, fontSize: '16px', color: 'var(--navy)' }}>सम्पर्क गर्नुस् (Contact Us)</span>
+                </div>
+                <p style={{ fontSize: '13.5px', color: 'var(--dark-gray)', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+                  कुनै सल्लाह, सुझाव, प्रेस विज्ञप्ति वा विज्ञापन सम्बन्धी सोधपुछका लागि हामीलाई सिधै सम्पर्क गर्नुहोस्।
+                </p>
+              </div>
+              <Link
+                href="/contact"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'white',
+                  color: 'var(--navy)',
+                  border: '1px solid var(--light-gray)',
+                  padding: '10px 18px',
+                  borderRadius: '6px',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  alignSelf: 'flex-start',
+                  transition: 'background 0.2s ease',
+                }}
+              >
+                <span>सम्पर्क विवरण</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
           </div>
         </div>
       </main>
