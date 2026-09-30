@@ -36,6 +36,7 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
   const [bannerHeading, setBannerHeading] = useState(initialData?.banner_heading || '');
   const [showBannerImage, setShowBannerImage] = useState(initialData?.show_banner_image !== false);
   const [bannerOrder, setBannerOrder] = useState<number>(initialData?.banner_order || 1);
+  const [views, setViews] = useState<number | string>(initialData?.views ?? 0);
 
   // Status: published, draft, or scheduled
   const initialStatus = (() => {
@@ -152,6 +153,7 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
       banner_order: isBanner ? (Number(bannerOrder) || 1) : null,
       is_published: finalIsPublished,
       published_at: finalPublishedAt,
+      views: views === '' ? 0 : Number(views),
     };
 
     try {
@@ -239,8 +241,8 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
         </small>
       </div>
 
-      {/* Category & Author */}
-      <div className="form-row">
+      {/* Category, Author & Views */}
+      <div className="form-row" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
         <div className="form-group">
           <label className="form-label">वर्ग (Category) *</label>
           <select
@@ -263,6 +265,21 @@ export default function NewsEditorForm({ initialData, isEdit = false }: NewsEdit
             onChange={e => setAuthor(e.target.value)}
             placeholder="KhelHub Desk"
           />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">👁️ भ्युज संख्या (View Count / Fake Views)</label>
+          <input
+            type="number"
+            min={0}
+            className="form-input"
+            value={views}
+            onChange={e => setViews(e.target.value === '' ? '' : Math.max(0, parseInt(e.target.value) || 0))}
+            placeholder="0"
+          />
+          <small style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+            समाचारमा देखिने भ्युज (इच्छा अनुसार सेट गर्न सक्नुहुन्छ)
+          </small>
         </div>
       </div>
 

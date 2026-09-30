@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const newArticle = {
       id: `news-${Date.now()}`,
       ...body,
-      views: 0,
+      views: body.views !== undefined && body.views !== null && !isNaN(Number(body.views)) ? Number(body.views) : 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
       show_banner_image: body.show_banner_image !== false,
       banner_order: body.banner_order !== undefined && body.banner_order !== null ? Number(body.banner_order) : 1,
       is_published: body.is_published !== false,
+      views: body.views !== undefined && body.views !== null && !isNaN(Number(body.views)) ? Number(body.views) : 0,
     };
 
     let { data, error } = await supabase
@@ -125,6 +126,10 @@ export async function PUT(request: NextRequest) {
 
   const body = await request.json();
   const { id, ...updateData } = body;
+
+  if (updateData.views !== undefined && updateData.views !== null && !isNaN(Number(updateData.views))) {
+    updateData.views = Number(updateData.views);
+  }
 
   if (isPlaceholder) {
     const idx = MOCK_NEWS.findIndex(n => n.id === id);

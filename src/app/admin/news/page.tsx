@@ -333,7 +333,38 @@ export default function AdminNewsPage() {
                       )}
                     </div>
                   </td>
-                  <td style={{ fontSize: '13px' }}>{article.views?.toLocaleString() || 0}</td>
+                  <td style={{ fontSize: '13px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontWeight: 600 }}>{article.views?.toLocaleString() || 0}</span>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const val = prompt('भ्युज संख्या बदल्नुस् (Set View Count):', String(article.views || 0));
+                          if (val !== null && !isNaN(Number(val))) {
+                            const newViews = Math.max(0, parseInt(val, 10));
+                            await fetch('/api/news', {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ id: article.id, views: newViews }),
+                            });
+                            fetchArticles();
+                          }
+                        }}
+                        style={{
+                          background: 'rgba(255,255,255,0.08)',
+                          border: 'none',
+                          borderRadius: '4px',
+                          color: '#38bdf8',
+                          cursor: 'pointer',
+                          padding: '2px 5px',
+                          fontSize: '11px',
+                        }}
+                        title="भ्युज सम्पादन गर्नुस् (Edit Views)"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </td>
                   <td style={{ fontSize: '12px', opacity: 0.7 }}>
                     {status === 'scheduled' ? (
                       <span style={{ color: '#c39bd3', fontWeight: 600 }}>

@@ -7,7 +7,8 @@ import Footer from '@/components/Footer';
 import NewsCard from '@/components/NewsCard';
 import AdBanner from '@/components/AdBanner';
 import ShareButtons from '@/components/ShareButtons';
-import { User, Calendar, Eye, Radio, ChevronRight } from 'lucide-react';
+import { User, Calendar, Radio } from 'lucide-react';
+import ViewCounter from '@/components/ViewCounter';
 import {
   getNewsBySlug,
   getCategories,
@@ -95,12 +96,6 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const relatedNews = await getRelatedNews(article.category_slug || '', decodedSlug, 5);
 
-
-  // Increment views (fire and forget)
-  fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/views?slug=${slug}`, {
-    method: 'POST',
-  }).catch(() => {});
-
   return (
     <>
       <Navbar categories={categories} breakingNews={breakingNews} headerAds={headerAds} />
@@ -110,19 +105,6 @@ export default async function ArticlePage({ params }: PageProps) {
           <div className="article-layout">
             {/* Article Main */}
             <article className="article-main">
-              {/* Breadcrumb */}
-              <div className="article-breadcrumb">
-                <Link href="/">गृहपृष्ठ</Link>
-                <span>›</span>
-                {article.category_name && (
-                  <>
-                    <Link href={`/category/${article.category_slug}`}>{article.category_name}</Link>
-                    <span>›</span>
-                  </>
-                )}
-                <span style={{ opacity: 0.7 }}>{article.title.substring(0, 40)}...</span>
-              </div>
-
               {/* Article Header */}
               <div className="article-header">
                 {article.category_name && (
@@ -148,10 +130,7 @@ export default async function ArticlePage({ params }: PageProps) {
                     <Calendar size={14} />
                     <span>{formatDateEn(article.published_at)}</span>
                   </span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <Eye size={14} />
-                    <span>{article.views.toLocaleString()} पटक हेरिएको</span>
-                  </span>
+                  <ViewCounter slug={decodedSlug} initialViews={article.views || 0} />
                 </div>
               </div>
 

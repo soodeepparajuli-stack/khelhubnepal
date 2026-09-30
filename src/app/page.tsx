@@ -105,7 +105,7 @@ export default async function HomePage() {
                   </div>
                 </div>
                 <div className="news-grid">
-                  {latestNews.map(article => (
+                  {latestNews.slice(0, 6).map(article => (
                     <NewsCard key={article.id} article={article} variant="default" />
                   ))}
                 </div>
