@@ -169,21 +169,31 @@ export async function getNewsBySlug(rawSlug: string): Promise<NewsArticle | null
   const slugsToTry = Array.from(new Set([decodedSlug, rawSlug]));
 
   if (isPlaceholderSupabase) {
-    return MOCK_NEWS.find(n => slugsToTry.includes(n.slug)) || null;
+    return MOCK_NEWS.find(n => slugsToTry.includes(n.slug) || slugsToTry.includes(n.id)) || null;
   }
   try {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('news')
       .select('*')
       .in('slug', slugsToTry)
-      .eq('is_published', true)
       .limit(1);
+
+    if (!data || data.length === 0) {
+      const byId = await supabase
+        .from('news')
+        .select('*')
+        .in('id', slugsToTry)
+        .limit(1);
+      data = byId.data;
+      error = byId.error;
+    }
+
     if (error || !data || data.length === 0) {
-      return MOCK_NEWS.find(n => slugsToTry.includes(n.slug)) || null;
+      return MOCK_NEWS.find(n => slugsToTry.includes(n.slug) || slugsToTry.includes(n.id)) || null;
     }
     return data[0];
   } catch {
-    return MOCK_NEWS.find(n => slugsToTry.includes(n.slug)) || null;
+    return MOCK_NEWS.find(n => slugsToTry.includes(n.slug) || slugsToTry.includes(n.id)) || null;
   }
 }
 

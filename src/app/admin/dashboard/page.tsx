@@ -28,7 +28,7 @@ export default async function AdminDashboard() {
         supabase.from('news').select('*', { count: 'exact', head: true }).eq('is_featured', true),
         supabase.from('news').select('*', { count: 'exact', head: true }).eq('is_breaking', true),
         supabase.from('ads').select('*', { count: 'exact', head: true }).eq('is_active', true),
-        supabase.from('news').select('id, title, category_name, published_at, is_published, views').order('created_at', { ascending: false }).limit(8),
+        supabase.from('news').select('id, title, slug, category_name, published_at, is_published, views').order('created_at', { ascending: false }).limit(8),
       ]);
 
       if (tCount !== null && tCount !== undefined) totalArticles = tCount;
@@ -158,7 +158,7 @@ export default async function AdminDashboard() {
                     <Link href={`/admin/news/edit/${article.id}`} className="btn btn-ghost btn-sm">
                       Edit
                     </Link>
-                    <Link href={`/news/${article.slug}`} target="_blank" className="btn btn-ghost btn-sm">
+                    <Link href={`/news/${encodeURIComponent(article.slug || article.id)}`} target="_blank" className="btn btn-ghost btn-sm">
                       View ↗
                     </Link>
                   </div>

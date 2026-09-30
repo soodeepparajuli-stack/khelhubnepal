@@ -379,6 +379,15 @@ export default function AdminNewsPage() {
                       <Link href={`/admin/news/edit/${article.id}`} className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                         <Edit3 size={13} /> Edit
                       </Link>
+                      <Link
+                        href={`/news/${encodeURIComponent(article.slug || article.id)}`}
+                        target="_blank"
+                        className="btn btn-ghost btn-sm"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+                        title="वेबसाइटमा हेर्नुस् (View on Site)"
+                      >
+                        View ↗
+                      </Link>
                       <button
                         onClick={() => toggleBanner(article)}
                         className="btn btn-ghost btn-sm"
